@@ -1,8 +1,8 @@
 {
   "name": "masa-search",
   "version": "0.1.0",
-  "description": "Search indexer for JavaScript",
-  "repository": "https://github.com/Phyrra/",
+  "description": "Search indexer for TypeScript and JavaScript",
+  "repository": "https://github.com/Phyrra/masa-search.git",
   "author": "Sandro.Maggi",
   "license": "MIT",
   "private": false,
