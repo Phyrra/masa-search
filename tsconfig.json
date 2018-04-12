@@ -1,6 +1,5 @@
 {
 	"compilerOptions": {
-		"baseUrl": "src",
 		"target": "es5",
 		"moduleResolution": "node",
 		"declaration": true,
@@ -8,6 +7,16 @@
 		"strict": true,
 		"typeRoots": [
 			"node_modules/@types"
+		],
+		"types": [
+			"jasmine",
+			"lodash"
 		]
-	}
+	},
+	"include": [
+		"src/**/*.ts"
+	],
+	"exclude": [
+		"specs/**/*.ts"
+	]
 }
