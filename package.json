@@ -1,0 +1,21 @@
+{
+  "name": "masa-search",
+  "version": "0.3.0",
+  "description": "Search indexer for JavaScript",
+  "repository": "https://github.com/Phyrra/",
+  "author": "Sandro.Maggi",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.106",
+    "typescript": "^2.8.1"
+  },
+  "dependencies": {
+    "lodash": "^4.17.5",
+    "moment": "^2.22.0"
+  }
+}
