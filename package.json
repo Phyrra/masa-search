@@ -1,6 +1,6 @@
 {
   "name": "masa-search",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Search indexer for TypeScript and JavaScript",
   "repository": "https://github.com/Phyrra/masa-search.git",
   "author": "Sandro.Maggi",
@@ -10,6 +10,8 @@
     "build": "tsc",
     "test": "karma start karma.conf.js"
   },
+  "main": "index.js",
+  "types": "index.d.ts",
   "devDependencies": {
     "@types/jasmine": "^2.8.6",
     "@types/lodash": "^4.14.106",
