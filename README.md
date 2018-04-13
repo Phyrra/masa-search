@@ -129,6 +129,8 @@ export interface Query {
 		}
 		```
 
+	*	`value` being the value that should be compared against
+
 The query should only ever have one of the keys filled.
 
 Examples

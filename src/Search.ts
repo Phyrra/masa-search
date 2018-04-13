@@ -27,19 +27,23 @@ const transformers: { [key: string]: (value: any) => string[] } = {
 			.split(/\s+/)
 			.filter(word => word.length > 0);
 	},
-	[Type.NUMBER]: (value: number) => {
+	[Type.NUMBER]: (value: number | string) => {
 		if (value == null) {
 			return [];
 		}
 
 		return [value.toString()];
 	},
-	[Type.DATE]: (value: Date) => {
+	[Type.DATE]: (value: Date | string) => {
 		if (value == null) {
 			return [];
 		}
 
-		return [moment(value).format(DATE_FORMAT)];
+		if (value instanceof Date) {
+			return [moment(value).format(DATE_FORMAT)];
+		} else {
+			return [moment(value, DATE_FORMAT).format(DATE_FORMAT)]
+		}
 	}
 }
 
