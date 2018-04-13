@@ -67,10 +67,12 @@ interface ResultMap {
 export class Search {
 	private _indexes: Index[];
 	private _indexedData: IndexMap;
+	private _unindexedData: any[];
 
 	constructor() {
 		this._indexes = [];
 		this._indexedData = {};
+		this._unindexedData = [];
 	}
 
 	addIndex(index: Index): Search {
@@ -110,6 +112,12 @@ export class Search {
 		});
 
 		return this;
+	}
+
+	reIndex() {
+		this._indexedData = {};
+
+		this.addData(this._unindexedData);
 	}
 
 	private _andCombine(singleResults: ResultMap[]): ResultMap {

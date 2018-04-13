@@ -62,8 +62,8 @@ API
 
 ### addIndex
 
-Add an index definition. All indexes have to be added before adding data.
-Allready processed data will not be re-indexed upon completion (might be revisited in the future).
+Add an index definition. All indexes should be added before adding data.
+Already processed data will not be re-indexed, unless manually triggered.
 
 The index should match the following interface
 ```
@@ -88,6 +88,10 @@ interface Index {
 ### addData
 
 Add new data for future searches. The data can be anything and nested as is required.
+
+### reIndex
+
+Clears the current indexed data store and re-indexes all data.
 
 ### find
 
