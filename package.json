@@ -12,6 +12,7 @@
   },
   "main": "index.js",
   "types": "index.d.ts",
+  "readme": "README.md",
   "devDependencies": {
     "@types/jasmine": "^2.8.6",
     "@types/lodash": "^4.14.106",
