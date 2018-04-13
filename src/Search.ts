@@ -256,16 +256,14 @@ export class Search {
 		const valueResults: any[] = [];
 
 		values.forEach(value => {
-			const partialResults: WrappedItem[] = this._extractMatchingResults(query, value, indexedData);
-			if (!partialResults || partialResults.length === 0) {
-				return;
-			}
-
 			const innerResults: ResultMap = {};
 
-			partialResults.forEach(result => {
-				innerResults[result.id] = result.item;
-			});
+			const partialResults: WrappedItem[] = this._extractMatchingResults(query, value, indexedData);
+			if (partialResults && partialResults.length > 0) {
+				partialResults.forEach(result => {
+					innerResults[result.id] = result.item;
+				});
+			}
 
 			valueResults.push(innerResults);
 		});
