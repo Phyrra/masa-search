@@ -7,44 +7,227 @@ import { Match } from '../src/Match.enum';
 describe('Search', () => {
 	let search;
 
+	const data: any[] = [
+		{
+			name: 'Alice',
+			age: 30,
+			birthday: new Date(1988, 0, 1),
+			comment: 'She is cool'
+		},
+		{
+			name: 'Beat',
+			age: 25,
+			birthday: new Date(1993, 0, 1),
+			comment: 'He is cool'
+		},
+		{
+			name: 'Charlie',
+			age: 35,
+			birthday: new Date(1983, 0, 1),
+			comment: 'She is cool too'
+		}
+	];
+
 	beforeEach(() => {
 		search = new Search();
 	});
 
 	describe('addIndex()', () => {
+		it('should have an empty list of indexes initially', () => {
+			expect(search['_indexes']).toEqual([]);
+		});
 
+		it('should push an index to the list', () => {
+			const index: Index = {
+				key: 'name',
+				type: Type.WORD
+			};
+
+			search.addIndex(index);
+
+			expect(search['_indexes']).toEqual([index]);
+		});
 	});
 
 	describe('addData()', () => {
+		describe('word', () => {
+			const index: Index = {
+				key: 'name',
+				type: Type.WORD
+			};
 
+			beforeEach(() => {
+				search.addIndex(index);
+				search.addData(data);
+			});
+
+			it('should have created a new index entry', () => {
+				expect(search['_indexedData']['name']).toEqual(jasmine.any(Object));
+			});
+
+			it('should have indexed values', () => {
+				const indexed: any = search['_indexedData']['name'];
+
+				expect(
+					Object.keys(indexed).sort()
+				).toEqual(['alice', 'beat', 'charlie']);
+			});
+
+			it('should have set the entries to their indexes', () => {
+				const indexed: any = search['_indexedData']['name'];
+
+				expect(indexed['alice'].map(elem => elem.item)).toEqual([data[0]]);
+				expect(indexed['beat'].map(elem => elem.item)).toEqual([data[1]]);
+				expect(indexed['charlie'].map(elem => elem.item)).toEqual([data[2]]);
+			});
+
+			it('should put a new data entry to the same index', () => {
+				const newPerson: any = {
+					name: 'Alice',
+					age: 40
+				};
+
+				search.addData([newPerson]);
+
+				const indexed: any = search['_indexedData']['name'];
+
+				expect(indexed['alice'].map(elem => elem.item)).toEqual([data[0], newPerson]);
+			});
+		});
+
+		describe('text', () => {
+			const index: Index = {
+				key: 'comment',
+				type: Type.TEXT
+			};
+
+			beforeEach(() => {
+				search.addIndex(index);
+				search.addData(data);
+			});
+
+			it('should have created a new index entry', () => {
+				expect(search['_indexedData']['comment']).toEqual(jasmine.any(Object));
+			});
+
+			it('should have indexed all words', () => {
+				const indexed: any = search['_indexedData']['comment'];
+
+				expect(
+					Object.keys(indexed).sort()
+				).toEqual(['cool', 'he', 'is', 'she', 'too']);
+			});
+
+			it('should have set the entries to their indexes', () => {
+				const indexed: any = search['_indexedData']['comment'];
+
+				expect(indexed['cool'].map(elem => elem.item)).toEqual([data[0], data[1], data[2]]);
+				expect(indexed['he'].map(elem => elem.item)).toEqual([data[1]]);
+				expect(indexed['is'].map(elem => elem.item)).toEqual([data[0], data[1], data[2]]);
+				expect(indexed['she'].map(elem => elem.item)).toEqual([data[0], data[2]]);
+				expect(indexed['too'].map(elem => elem.item)).toEqual([data[2]]);
+			});
+		});
+
+		describe('number', () => {
+			const index: Index = {
+				key: 'age',
+				type: Type.NUMBER
+			};
+
+			beforeEach(() => {
+				search.addIndex(index);
+				search.addData(data);
+			});
+
+			it('should have created a new index entry', () => {
+				expect(search['_indexedData']['age']).toEqual(jasmine.any(Object));
+			});
+
+			it('should have indexed all values', () => {
+				const indexed: any = search['_indexedData']['age'];
+
+				expect(
+					Object.keys(indexed).map(key => Number(key)).sort()
+				).toEqual([25, 30, 35]);
+			});
+
+			it('should have set the entries to their indexes', () => {
+				const indexed: any = search['_indexedData']['age'];
+
+				expect(indexed['25'].map(elem => elem.item)).toEqual([data[1]]);
+				expect(indexed['30'].map(elem => elem.item)).toEqual([data[0]]);
+				expect(indexed['35'].map(elem => elem.item)).toEqual([data[2]]);
+			});
+		});
+
+		describe('date', () => {
+			const index: Index = {
+				key: 'birthday',
+				type: Type.DATE
+			};
+
+			beforeEach(() => {
+				search.addIndex(index);
+				search.addData(data);
+			});
+
+			it('should have created a new index entry', () => {
+				expect(search['_indexedData']['birthday']).toEqual(jasmine.any(Object));
+			});
+
+			it('should have indexed all values', () => {
+				const indexed: any = search['_indexedData']['birthday'];
+
+				expect(
+					Object.keys(indexed).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+				).toEqual(['1983-01-01', '1988-01-01', '1993-01-01']);
+			});
+
+			it('should have set the entries to their indexes', () => {
+				const indexed: any = search['_indexedData']['birthday'];
+
+				expect(indexed['1983-01-01'].map(elem => elem.item)).toEqual([data[2]]);
+				expect(indexed['1988-01-01'].map(elem => elem.item)).toEqual([data[0]]);
+				expect(indexed['1993-01-01'].map(elem => elem.item)).toEqual([data[1]]);
+			});
+		});
 	});
 
 	describe('reIndex()', () => {
+		const index: Index = {
+			key: 'name',
+			type: Type.WORD
+		};
 
+		const newPerson: any = {
+			name: 'Alice',
+			age: 40
+		};
+
+		beforeEach(() => {
+			search.addData([newPerson]);
+
+			search.addIndex(index);
+			search.addData(data);
+		});
+
+		it('should not have indexed old data', () => {
+			const indexed: any = search['_indexedData']['name'];
+
+			expect(indexed['alice'].map(elem => elem.item)).toEqual([data[0]]);
+		});
+
+		it('should have indexed all data', () => {
+			search.reIndex();
+
+			const indexed: any = search['_indexedData']['name'];
+
+			expect(indexed['alice'].map(elem => elem.item)).toEqual([newPerson, data[0]]);
+		});
 	});
 
 	describe('find()', () => {
-		const data = [
-			{
-				name: 'Alice',
-				age: 30,
-				birthday: new Date(1988, 0, 1),
-				comment: 'She is cool'
-			},
-			{
-				name: 'Beat',
-				age: 25,
-				birthday: new Date(1993, 0, 1),
-				comment: 'He is cool'
-			},
-			{
-				name: 'Charlie',
-				age: 35,
-				birthday: new Date(1983, 0, 1),
-				comment: 'She is cool too'
-			}
-		];
-
 		describe('single search', () => {
 			describe('word search', () => {
 				const index: Index = {

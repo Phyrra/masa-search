@@ -82,6 +82,8 @@ export class Search {
 	}
 
 	addData(data: any[]): Search {
+		this._unindexedData = this._unindexedData.concat(data);
+		
 		data.forEach(item => {
 			const wrappedItem: WrappedItem = {
 				id: guid(),
