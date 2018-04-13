@@ -5,6 +5,8 @@ import { guid } from './guid';
 import { Type } from './Type.enum';
 import { Match } from './Match.enum';
 import { Index } from './Index.interface';
+import { Query } from './Query.interface';
+import { Condition } from './Condition.interface';
 
 const DATE_FORMAT: string = 'YYYY-MM-DD';
 
@@ -122,7 +124,7 @@ export class Search {
 			})
 			.forEach(id => endResults[id] = pivot[id]);
 
-		return endResults; 
+		return endResults;
 	}
 
 	private _orCombine(singleResults: ResultMap[]): ResultMap {
@@ -136,7 +138,7 @@ export class Search {
 		return endResults;
 	}
 
-	private _extractMatchingResults(query: any /* TODO */, value: string, indexedData: IndexedData): WrappedItem[] {
+	private _extractMatchingResults(query: Condition, value: string, indexedData: IndexedData): WrappedItem[] {
 		if (query.index.type === Type.WORD || query.index.type === Type.TEXT || query.match === Match.EQ) {
 			return indexedData[value];
 		}
@@ -227,24 +229,24 @@ export class Search {
 		return partialResults;
 	}
 
-	private _findSingleQueryResult(query: any /* TODO */): ResultMap {
+	private _findSingleQueryResult(query: Condition): ResultMap {
 		if (!transformers.hasOwnProperty(query.index.type)) {
 			throw new Error(`Unknown type ${query.index.type}`);
 		}
-	
+
 		const indexedData: IndexedData = this._indexedData[query.index.key];
 		if (!indexedData) {
 			return {};
 		}
 
 		const values: string[] = transformers[query.index.type](query.value);
-	
+
 		const valueResults: any[] = [];
-	
+
 		values.forEach(value => {
 			const partialResults: WrappedItem[] = this._extractMatchingResults(query, value, indexedData);
 			if (!partialResults || partialResults.length === 0) {
-				return;	
+				return;
 			}
 
 			const innerResults: ResultMap = {};
@@ -255,31 +257,35 @@ export class Search {
 
 			valueResults.push(innerResults);
 		});
-	
+
 		return this._andCombine(valueResults);
 	}
 
-	private _findPartial(search: any /* TODO */): ResultMap {
-		if (search.hasOwnProperty('condition')) {
+	private _findPartial(search: Query): ResultMap {
+		if (Object.keys(search).length !== 1) {
+			throw new Error('Search should only have one of [condition, and, or]');
+		}
+
+		if (search.hasOwnProperty('condition') && search.condition) {
 			return this._findSingleQueryResult(search.condition);
-		} else if (search.hasOwnProperty('and')) {
+		} else if (search.hasOwnProperty('and') && search.and) {
 			return this._andCombine(
-				search.and.map((condition: any /* TODO */) => {
+				search.and.map(condition => {
 					return this._findPartial(condition);
 				})
 			);
-		} else if (search.hasOwnProperty('or')) {
+		} else if (search.hasOwnProperty('or') && search.or) {
 			return this._orCombine(
-				search.or.map((condition: any /* TODO */) => {
+				search.or.map(condition => {
 					return this._findPartial(condition);
 				})
 			);
 		}
 
-		throw new Error('Search should have one of [condition, and, or]');
+		throw new Error('Search should have one valid definition of [condition, and, or]');
 	}
 
-	find(search: any /* TODO */): any[] {
+	find(search: Query): any[] {
 		const results: ResultMap = this._findPartial(search);
 
 		return Object.keys(results)
