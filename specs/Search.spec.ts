@@ -683,5 +683,111 @@ describe('Search', () => {
 				});
 			});
 		});
+
+		describe('and combination', () => {
+			const index1: Index = {
+				key: 'name',
+				type: Type.WORD
+			};
+
+			const index2: Index = {
+				key: 'age',
+				type: Type.NUMBER
+			};
+
+			beforeEach(() => {
+				search.addIndex(index1);
+				search.addIndex(index2);
+
+				search.addData(data);
+			});
+
+			it('should find values where both conditions match', () => {
+				const query: Query = {
+					and: [
+						{
+							condition: {
+								index: index1,
+								value: 'Alice',
+								match: Match.EQ
+							}
+						}, {
+							condition: {
+								index: index2,
+								value: 30,
+								match: Match.EQ
+							}
+						}
+					]
+				};
+
+				expect(search.find(query)).toEqual([data[0]]);
+			});
+
+			it('should not find values where only one condition matches', () => {
+				const query: Query = {
+					and: [
+						{
+							condition: {
+								index: index1,
+								value: 'Alice',
+								match: Match.EQ
+							}
+						}, {
+							condition: {
+								index: index2,
+								value: 25,
+								match: Match.EQ
+							}
+						}
+					]
+				};
+
+				expect(search.find(query)).toEqual([]);
+			});
+		});
+
+		describe('or combination', () => {
+			const index1: Index = {
+				key: 'name',
+				type: Type.WORD
+			};
+
+			const index2: Index = {
+				key: 'age',
+				type: Type.NUMBER
+			};
+
+			beforeEach(() => {
+				search.addIndex(index1);
+				search.addIndex(index2);
+
+				search.addData(data);
+			});
+
+			it('should find values where both conditions match', () => {
+				const query: Query = {
+					or: [
+						{
+							condition: {
+								index: index1,
+								value: 'Alice',
+								match: Match.EQ
+							}
+						}, {
+							condition: {
+								index: index2,
+								value: 25,
+								match: Match.EQ
+							}
+						}
+					]
+				};
+
+				expect(
+					search.find(query).map(elem => elem.age).sort()
+				).toEqual([25, 30]);
+			});
+		});
 	});
 });
