@@ -7,6 +7,7 @@ import { Match } from './Match.enum';
 import { Index } from './Index.interface';
 import { Query } from './Query.interface';
 import { Condition } from './Condition.interface';
+import { Store } from './Store';
 
 const DATE_FORMAT: string = 'YYYY-MM-DD';
 
@@ -65,14 +66,34 @@ interface ResultMap {
 }
 
 export class Search {
+	private static _STORE: string = '.tmp/.store.json';
+
 	private _indexes: Index[];
 	private _indexedData: IndexMap;
 	private _unindexedData: any[];
+	private _store: Store;
 
 	constructor() {
 		this._indexes = [];
 		this._indexedData = {};
 		this._unindexedData = [];
+		this._store = new Store(Search._STORE);
+	}
+
+	restore(): Promise<void> {
+		return this._store.retrieve()
+			.then(data => {
+				this._indexes = data.indexes || [];
+				this._indexedData = data.data || {};
+			})
+			.catch(err => console.log(err));
+	}
+
+	persist(): Promise<void> {
+		return this._store.store({
+			indexes: this._indexes,
+			data: this._indexedData
+		});
 	}
 
 	addIndex(index: Index): Search {

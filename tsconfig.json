@@ -1,16 +1,18 @@
 {
 	"compilerOptions": {
-		"target": "es5",
+		"target": "es2015",
 		"module": "commonjs",
+		"moduleResolution": "node",
 		"declaration": true,
 		"outDir": "./dist",
 		"strict": true,
 		"typeRoots": [
-			"node_modules/@types"
+			"./node_modules/@types"
 		],
 		"types": [
 			"jasmine",
-			"lodash"
+			"lodash",
+			"node"
 		]
 	},
 	"include": [
