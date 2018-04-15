@@ -692,6 +692,42 @@ describe('Search', () => {
 			});
 		});
 
+		describe('fuzzy search', () => {
+			const index: Index = {
+				key: 'name',
+				type: Type.WORD
+			};
+
+			beforeEach(() => {
+				search.addIndex(index);
+				search.addData(data);
+			});
+
+			it('should find an exact match', () => {
+				const query: Query = {
+					condition: {
+						index: index,
+						value: 'Alice',
+						match: Match.FUZZY
+					}
+				};
+
+				expect(search.find(query)).toEqual([data[0]]);
+			});
+
+			it('should find a one-off match', () => {
+				const query: Query = {
+					condition: {
+						index: index,
+						value: 'Allice',
+						match: Match.FUZZY
+					}
+				};
+
+				expect(search.find(query)).toEqual([data[0]]);
+			});
+		});
+
 		describe('and combination', () => {
 			const index1: Index = {
 				key: 'name',

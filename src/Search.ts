@@ -7,6 +7,7 @@ import { Match } from './Match.enum';
 import { Index } from './Index.interface';
 import { Query } from './Query.interface';
 import { Condition } from './Condition.interface';
+import { getMaxAllowedDistance, levenshtein } from './levenshtein';
 
 const DATE_FORMAT: string = 'YYYY-MM-DD';
 
@@ -224,18 +225,30 @@ export class Search {
 	private _extractMatchingResults(query: Condition, value: string, indexedData: IndexedData): WrappedItem[] {
 		const match: Match = query.match || Match.EQ;
 
+		const extractor: (evalFnc: EvaluatorFunction) => WrappedItem[] = (evalFnc) => {
+			return Object.keys(indexedData)
+				.filter(key => evalFnc(key))
+				.reduce((acc, key) => acc.concat(indexedData[key]), [] as WrappedItem[]);
+		};
+
 		switch (match) {
 			case Match.EQ:
 				return indexedData[value];
+			case Match.FUZZY:
+				const fuzzyEval: EvaluatorFunction = (key: string) => {
+					const maxAllowedDistance = getMaxAllowedDistance(key, value);
+
+					return levenshtein(key, value) <= maxAllowedDistance;
+				};
+
+				return extractor(fuzzyEval);
 			case Match.GT:
 			case Match.GTE:
 			case Match.LT:
 			case Match.LTE:
-				const evaluator: EvaluatorFunction = comparators[match][query.index.type](value);
+				const comparativeEval: EvaluatorFunction = comparators[match][query.index.type](value);
 
-				return Object.keys(indexedData)
-					.filter(key => evaluator(key))
-					.reduce((acc, key) => acc.concat(indexedData[key]), [] as WrappedItem[]);
+				return extractor(comparativeEval);
 			default:
 				throw new Error(`Unknown matcher ${query.match}`);
 		}

@@ -3,5 +3,6 @@ export enum Match {
 	GT = '>',
 	LT = '<',
 	GTE = '>=',
-	LTE = '<='
+	LTE = '<=',
+	FUZZY = 'fuzzy'
 }
