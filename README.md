@@ -121,15 +121,15 @@ export interface Query {
 
 	*	`index` being the index, see definition above
 
-	*	`match` being the match type (currently only used for `Type.Number` and `Type.Date`).
-		`Match` is an enum of
+	*	`match` being the match type where `Match` is an enum of
 		```
 		enum Match {
 			EQ = '=',
 			GT = '>',
 			LT = '<',
 			GTE = '>=',
-			LTE = '<='
+			LTE = '<=',
+			FUZZY = 'fuzzy'
 		}
 		```
 
