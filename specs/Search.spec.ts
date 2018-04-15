@@ -244,7 +244,8 @@ describe('Search', () => {
 					const query: Query = {
 						condition: {
 							index: index,
-							value: 'Donald'
+							value: 'Donald',
+							match: Match.EQ
 						}
 					};
 
@@ -255,7 +256,8 @@ describe('Search', () => {
 					const query: Query = {
 						condition: {
 							index: index,
-							value: 'Alice'
+							value: 'Alice',
+							match: Match.EQ
 						}
 					};
 
@@ -266,7 +268,8 @@ describe('Search', () => {
 					const query: Query = {
 						condition: {
 							index: index,
-							value: 'bEaT'
+							value: 'bEaT',
+							match: Match.EQ
 						}
 					};
 
@@ -289,7 +292,8 @@ describe('Search', () => {
 					const query: Query = {
 						condition: {
 							index: index,
-							value: 'uncool'
+							value: 'uncool',
+							match: Match.EQ
 						}
 					};
 
@@ -300,7 +304,8 @@ describe('Search', () => {
 					const query: Query = {
 						condition: {
 							index: index,
-							value: 'He'
+							value: 'He',
+							match: Match.EQ
 						}
 					};
 
@@ -311,7 +316,8 @@ describe('Search', () => {
 					const query: Query = {
 						condition: {
 							index: index,
-							value: 'tOo'
+							value: 'tOo',
+							match: Match.EQ
 						}
 					};
 
@@ -322,7 +328,8 @@ describe('Search', () => {
 					const query: Query = {
 						condition: {
 							index: index,
-							value: 'cool too'
+							value: 'cool too',
+							match: Match.EQ
 						}
 					};
 
@@ -333,7 +340,8 @@ describe('Search', () => {
 					const query: Query = {
 						condition: {
 							index: index,
-							value: 'uncool too'
+							value: 'uncool too',
+							match: Match.EQ
 						}
 					};
 

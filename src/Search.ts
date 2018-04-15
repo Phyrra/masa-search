@@ -10,7 +10,13 @@ import { Condition } from './Condition.interface';
 
 const DATE_FORMAT: string = 'YYYY-MM-DD';
 
-const transformers: { [key: string]: (value: any) => string[] } = {
+declare type TransformerFunction = (value: any) => string[];
+
+declare type Transformers = {
+	[key: string]: TransformerFunction;
+}
+
+const transformers: Transformers = {
 	[Type.WORD]: (value: string) => {
 		if (!value) {
 			return [];
@@ -46,6 +52,69 @@ const transformers: { [key: string]: (value: any) => string[] } = {
 		}
 	}
 }
+
+declare type EvaluatorFunction = (value: string) => boolean;
+
+declare type ComparatorFunction = (reference: string) => EvaluatorFunction;
+
+declare type TypeComparators = {
+	[key: string]: ComparatorFunction;
+}
+
+declare type Comparators = {
+	[key: string]: TypeComparators;
+}
+
+const comparators: Comparators = {
+	[Match.GT]: {
+		[Type.NUMBER]: (reference: string) => {
+			const refVal: number = Number(reference);
+
+			return (value: string) => Number(value) > refVal;
+		},
+		[Type.DATE]: (reference: string) => {
+			const refVal: Moment = moment(reference, DATE_FORMAT);
+
+			return (value: string) => moment(value, DATE_FORMAT).isAfter(refVal, 'day');
+		}
+	},
+	[Match.GTE]: {
+		[Type.NUMBER]: (reference: string) => {
+			const refVal: number = Number(reference);
+
+			return (value: string) => Number(value) >= refVal;
+		},
+		[Type.DATE]: (reference: string) => {
+			const refVal: Moment = moment(reference, DATE_FORMAT);
+
+			return (value: string) => moment(value, DATE_FORMAT).isSameOrAfter(refVal, 'day');
+		}
+	},
+	[Match.LT]: {
+		[Type.NUMBER]: (reference: string) => {
+			const refVal: number = Number(reference);
+
+			return (value: string) => Number(value) < refVal;
+		},
+		[Type.DATE]: (reference: string) => {
+			const refVal: Moment = moment(reference, DATE_FORMAT);
+
+			return (value: string) => moment(value, DATE_FORMAT).isBefore(refVal, 'day');
+		}
+	},
+	[Match.LTE]: {
+		[Type.NUMBER]: (reference: string) => {
+			const refVal: number = Number(reference);
+
+			return (value: string) => Number(value) <= refVal;
+		},
+		[Type.DATE]: (reference: string) => {
+			const refVal: Moment = moment(reference, DATE_FORMAT);
+
+			return (value: string) => moment(value, DATE_FORMAT).isSameOrBefore(refVal, 'day');
+		}
+	}
+};
 
 interface WrappedItem {
 	id: string;
@@ -153,94 +222,23 @@ export class Search {
 	}
 
 	private _extractMatchingResults(query: Condition, value: string, indexedData: IndexedData): WrappedItem[] {
-		if (query.index.type === Type.WORD || query.index.type === Type.TEXT || query.match === Match.EQ) {
-			return indexedData[value];
-		}
+		const match: Match = query.match || Match.EQ;
 
-		let partialResults: WrappedItem[] = [];
+		switch (match) {
+			case Match.EQ:
+				return indexedData[value];
+			case Match.GT:
+			case Match.GTE:
+			case Match.LT:
+			case Match.LTE:
+				const evaluator: EvaluatorFunction = comparators[match][query.index.type](value);
 
-		switch (query.index.type) {
-			case Type.NUMBER:
-				const numValue: number = Number(value);
-
-				Object.keys(indexedData)
-					.forEach(key => {
-						const number: number = Number(key);
-
-						switch (query.match) {
-							case Match.GT:
-								if (number > numValue) {
-									partialResults = partialResults.concat(indexedData[key]);
-								}
-
-								break;
-							case Match.LT:
-								if (number < numValue) {
-									partialResults = partialResults.concat(indexedData[key]);
-								}
-
-								break;
-							case Match.GTE:
-								if (number >= numValue) {
-									partialResults = partialResults.concat(indexedData[key]);
-								}
-
-								break;
-							case Match.LTE:
-								if (number <= numValue) {
-									partialResults = partialResults.concat(indexedData[key]);
-								}
-
-								break;
-							default:
-								throw new Error(`Unknown matcher ${query.match}`);
-						}
-					});
-
-				break;
-			case Type.DATE:
-				const dateValue: Moment = moment(value, DATE_FORMAT);
-
-				Object.keys(indexedData)
-					.forEach(key => {
-						const date: Moment = moment(key, DATE_FORMAT);
-
-						switch (query.match) {
-							case Match.GT:
-								if (date.isAfter(dateValue, 'day')) {
-									partialResults = partialResults.concat(indexedData[key]);
-								}
-
-								break;
-							case Match.LT:
-								if (date.isBefore(dateValue, 'day')) {
-									partialResults = partialResults.concat(indexedData[key]);
-								}
-
-								break;
-							case Match.GTE:
-								if (date.isSameOrAfter(dateValue, 'day')) {
-									partialResults = partialResults.concat(indexedData[key]);
-								}
-
-								break;
-							case Match.LTE:
-								if (date.isSameOrBefore(dateValue, 'day')) {
-									partialResults = partialResults.concat(indexedData[key]);
-								}
-
-								break;
-							default:
-								throw new Error(`Unknown matcher ${query.match}`);
-						}
-					});
-
-				break;
+				return Object.keys(indexedData)
+					.filter(key => evaluator(key))
+					.reduce((acc, key) => acc.concat(indexedData[key]), [] as WrappedItem[]);
 			default:
-				throw new Error(`Unknown type ${query.index.type}`);
+				throw new Error(`Unknown matcher ${query.match}`);
 		}
-
-		return partialResults;
 	}
 
 	private _findSingleQueryResult(query: Condition): ResultMap {
