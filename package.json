@@ -8,7 +8,8 @@
   "private": false,
   "scripts": {
     "build": "tsc",
-    "test": "karma start karma.conf.js"
+	"test": "karma start karma.spec.js",
+	"perf": "karma start karma.perf.js"
   },
   "main": "index.js",
   "types": "index.d.ts",

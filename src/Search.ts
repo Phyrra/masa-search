@@ -31,6 +31,7 @@ const transformers: Transformers = {
 		}
 
 		return value.trim().toLowerCase()
+			.replace(/[^a-z\s]/g, ' ')
 			.split(/\s+/)
 			.filter(word => word.length > 0);
 	},

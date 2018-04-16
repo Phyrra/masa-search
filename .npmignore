@@ -1,6 +1,7 @@
 coverage/
 specs/
 test/
+perf/
 karma.conf.js
 tsconfig.json
 yarn-error.log
