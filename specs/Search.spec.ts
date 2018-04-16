@@ -1,8 +1,8 @@
 import { Search } from '../src/Search';
-import { Type } from '../src/Type.enum';
-import { Query } from '../src/Query.interface';
-import { Index } from '../src/Index.interface';
-import { Match } from '../src/Match.enum';
+import { Type } from '../src/types/Type.enum';
+import { Query } from '../src/types/Query.interface';
+import { Index } from '../src/types/Index.interface';
+import { Match } from '../src/types/Match.enum';
 
 describe('Search', () => {
 	let search;

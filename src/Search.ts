@@ -1,13 +1,13 @@
 import * as moment from 'moment';
 import { Moment } from 'moment';
 import * as  _ from 'lodash';
-import { guid } from './guid';
-import { Type } from './Type.enum';
-import { Match } from './Match.enum';
-import { Index } from './Index.interface';
-import { Query } from './Query.interface';
-import { Condition } from './Condition.interface';
-import { getMaxAllowedDistance, levenshtein } from './levenshtein';
+import { guid } from './helpers/guid';
+import { Type } from './types/Type.enum';
+import { Match } from './types/Match.enum';
+import { Index } from './types/Index.interface';
+import { Query } from './types/Query.interface';
+import { Condition } from './types/Condition.interface';
+import { getMaxAllowedDistance, levenshtein } from './helpers/levenshtein';
 
 const DATE_FORMAT: string = 'YYYY-MM-DD';
 

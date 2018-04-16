@@ -1,4 +1,4 @@
-import { levenshtein, getMaxAllowedDistance } from '../src/levenshtein';
+import { levenshtein, getMaxAllowedDistance } from '../src/helpers/levenshtein';
 
 describe('levenshtein()', () => {
 	it('should return 0 for matching values', () => {
