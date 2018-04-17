@@ -8,6 +8,9 @@ import { Index } from './types/Index.interface';
 import { Query } from './types/Query.interface';
 import { Condition } from './types/Condition.interface';
 import { getMaxAllowedDistance, levenshtein } from './helpers/levenshtein';
+import { Tree } from './tree/Tree';
+import { MomentTree } from './tree/MomentTree';
+import { NumberTree } from './tree/NumberTree';
 
 const DATE_FORMAT: string = 'YYYY-MM-DD';
 
@@ -55,67 +58,28 @@ const transformers: Transformers = {
 	}
 }
 
-declare type EvaluatorFunction = (value: string) => boolean;
+declare type UntransformerFunction = (value: string) => any;
 
-declare type ComparatorFunction = (reference: string) => EvaluatorFunction;
-
-declare type TypeComparators = {
-	[key: string]: ComparatorFunction;
+declare type Untransformers = {
+	[key: string]: UntransformerFunction;
 }
 
-declare type Comparators = {
-	[key: string]: TypeComparators;
+const untransformers: Untransformers = {
+	[Type.NUMBER]: (value: string) => Number(value),
+	[Type.DATE]: (value: string) => moment(value, DATE_FORMAT)
 }
 
-const comparators: Comparators = {
-	[Match.GT]: {
-		[Type.NUMBER]: (reference: string) => {
-			const refVal: number = Number(reference);
+declare type TreeKeyExtractorFunction = (tree: Tree<any>, reference: any) => any[];
 
-			return (value: string) => Number(value) > refVal;
-		},
-		[Type.DATE]: (reference: string) => {
-			const refVal: Moment = moment(reference, DATE_FORMAT);
+declare type TreeKeyExtractors = {
+	[key: string]: TreeKeyExtractorFunction;
+}
 
-			return (value: string) => moment(value, DATE_FORMAT).isAfter(refVal, 'day');
-		}
-	},
-	[Match.GTE]: {
-		[Type.NUMBER]: (reference: string) => {
-			const refVal: number = Number(reference);
-
-			return (value: string) => Number(value) >= refVal;
-		},
-		[Type.DATE]: (reference: string) => {
-			const refVal: Moment = moment(reference, DATE_FORMAT);
-
-			return (value: string) => moment(value, DATE_FORMAT).isSameOrAfter(refVal, 'day');
-		}
-	},
-	[Match.LT]: {
-		[Type.NUMBER]: (reference: string) => {
-			const refVal: number = Number(reference);
-
-			return (value: string) => Number(value) < refVal;
-		},
-		[Type.DATE]: (reference: string) => {
-			const refVal: Moment = moment(reference, DATE_FORMAT);
-
-			return (value: string) => moment(value, DATE_FORMAT).isBefore(refVal, 'day');
-		}
-	},
-	[Match.LTE]: {
-		[Type.NUMBER]: (reference: string) => {
-			const refVal: number = Number(reference);
-
-			return (value: string) => Number(value) <= refVal;
-		},
-		[Type.DATE]: (reference: string) => {
-			const refVal: Moment = moment(reference, DATE_FORMAT);
-
-			return (value: string) => moment(value, DATE_FORMAT).isSameOrBefore(refVal, 'day');
-		}
-	}
+const treeKeyExtractors: TreeKeyExtractors = {
+	[Match.GT]: (tree: Tree<any>, reference: any) => tree.getBiggerElements(reference),
+	[Match.LT]: (tree: Tree<any>, reference: any) => tree.getSmallerElements(reference),
+	[Match.GTE]: (tree: Tree<any>, reference: any) => tree.getBiggerEqualsElements(reference),
+	[Match.LTE]: (tree: Tree<any>, reference: any) => tree.getSmallerEqualsElements(reference)
 };
 
 interface WrappedItem {
@@ -124,11 +88,16 @@ interface WrappedItem {
 }
 
 interface IndexedData {
-	[key: string]: WrappedItem[]
+	[key: string]: WrappedItem[];
+}
+
+interface IndexObj {
+	indexed: IndexedData;
+	tree: Tree<any> | null;
 }
 
 interface IndexMap {
-	[key: string]: IndexedData
+	[key: string]: IndexObj
 }
 
 interface ResultMap {
@@ -170,16 +139,33 @@ export class Search {
 
 				keys.forEach(key => {
 					if (!this._indexedData.hasOwnProperty(index.key)) {
-						this._indexedData[index.key] = {};
+						const getTree: (type: Type) => Tree<any> | null = (type) => {
+							switch (type) {
+								case Type.NUMBER:
+									return new NumberTree();
+								case Type.DATE:
+									return new MomentTree('day');
+								default:
+									return null;
+							}
+						};
+
+						this._indexedData[index.key] = {
+							indexed: {},
+							tree: getTree(index.type)
+						};
 					}
 
-					const indexedData: IndexedData = this._indexedData[index.key];
+					const indexObj: IndexObj = this._indexedData[index.key];
 
-					if (!indexedData.hasOwnProperty(key)) {
-						indexedData[key] = [];
+					if (!indexObj.indexed.hasOwnProperty(key)) {
+						indexObj.indexed[key] = [];
 					}
 
-					indexedData[key].push(wrappedItem);
+					indexObj.indexed[key].push(wrappedItem);
+					if (indexObj.tree != null) {
+						indexObj.tree.add(untransformers[index.type](key));
+					}
 				});
 			});
 		});
@@ -223,33 +209,36 @@ export class Search {
 		return endResults;
 	}
 
-	private _extractMatchingResults(query: Condition, value: string, indexedData: IndexedData): WrappedItem[] {
+	private _extractMatchingResults(query: Condition, value: string, indexedData: IndexObj): WrappedItem[] {
 		const match: Match = query.match || Match.EQ;
 
-		const extractor: (evalFnc: EvaluatorFunction) => WrappedItem[] = (evalFnc) => {
-			return Object.keys(indexedData)
-				.filter(key => evalFnc(key))
-				.reduce((acc, key) => acc.concat(indexedData[key]), [] as WrappedItem[]);
-		};
+		const reducer: (acc: WrappedItem[], key: string) => WrappedItem[] = (acc, key) => acc.concat(indexedData.indexed[key]);
 
 		switch (match) {
 			case Match.EQ:
-				return indexedData[value];
+				return indexedData.indexed[value];
 			case Match.FUZZY:
-				const fuzzyEval: EvaluatorFunction = (key: string) => {
+				const fuzzyEval: (value: string) => boolean = (key: string) => {
 					const maxAllowedDistance = getMaxAllowedDistance(key, value);
 
 					return levenshtein(key, value) <= maxAllowedDistance;
 				};
 
-				return extractor(fuzzyEval);
+				return Object.keys(indexedData.indexed)
+					.filter(key => fuzzyEval(key))
+					.reduce(reducer, [] as WrappedItem[]);
 			case Match.GT:
 			case Match.GTE:
 			case Match.LT:
 			case Match.LTE:
-				const comparativeEval: EvaluatorFunction = comparators[match][query.index.type](value);
+				const tree: Tree<any> | null = indexedData.tree;
+				if (tree == null) {
+					throw new Error(`Type ${query.index.type} has no tree for ${match}`);
+				}
 
-				return extractor(comparativeEval);
+				return treeKeyExtractors[match](tree, untransformers[query.index.type](value))
+					.map(key => transformers[query.index.type](key)[0])
+					.reduce(reducer, [] as WrappedItem[]);
 			default:
 				throw new Error(`Unknown matcher ${query.match}`);
 		}
@@ -260,7 +249,7 @@ export class Search {
 			throw new Error(`Unknown type ${query.index.type}`);
 		}
 
-		const indexedData: IndexedData = this._indexedData[query.index.key];
+		const indexedData: IndexObj = this._indexedData[query.index.key];
 		if (!indexedData) {
 			return {};
 		}

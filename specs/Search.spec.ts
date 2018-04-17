@@ -66,15 +66,19 @@ describe('Search', () => {
 			});
 
 			it('should have indexed values', () => {
-				const indexed: any = search['_indexedData']['name'];
+				const indexed: any = search['_indexedData']['name'].indexed;
 
 				expect(
 					Object.keys(indexed).sort()
 				).toEqual(['alice', 'beat', 'charlie']);
 			});
 
+			it('should not have created a tree', () => {
+				expect(search['_indexedData']['name'].tree).toBeNull();
+			});
+
 			it('should have set the entries to their indexes', () => {
-				const indexed: any = search['_indexedData']['name'];
+				const indexed: any = search['_indexedData']['name'].indexed;
 
 				expect(indexed['alice'].map(elem => elem.item)).toEqual([data[0]]);
 				expect(indexed['beat'].map(elem => elem.item)).toEqual([data[1]]);
@@ -89,7 +93,7 @@ describe('Search', () => {
 
 				search.addData([newPerson]);
 
-				const indexed: any = search['_indexedData']['name'];
+				const indexed: any = search['_indexedData']['name'].indexed;
 
 				expect(indexed['alice'].map(elem => elem.item)).toEqual([data[0], newPerson]);
 			});
@@ -111,15 +115,19 @@ describe('Search', () => {
 			});
 
 			it('should have indexed all words', () => {
-				const indexed: any = search['_indexedData']['comment'];
+				const indexed: any = search['_indexedData']['comment'].indexed;
 
 				expect(
 					Object.keys(indexed).sort()
 				).toEqual(['cool', 'he', 'is', 'she', 'too']);
 			});
 
+			it('should not have created a tree', () => {
+				expect(search['_indexedData']['comment'].tree).toBeNull();
+			});
+
 			it('should have set the entries to their indexes', () => {
-				const indexed: any = search['_indexedData']['comment'];
+				const indexed: any = search['_indexedData']['comment'].indexed;
 
 				expect(indexed['cool'].map(elem => elem.item)).toEqual([data[0], data[1], data[2]]);
 				expect(indexed['he'].map(elem => elem.item)).toEqual([data[1]]);
@@ -145,15 +153,23 @@ describe('Search', () => {
 			});
 
 			it('should have indexed all values', () => {
-				const indexed: any = search['_indexedData']['age'];
+				const indexed: any = search['_indexedData']['age'].indexed;
 
 				expect(
 					Object.keys(indexed).map(key => Number(key)).sort()
 				).toEqual([25, 30, 35]);
 			});
 
+			it('should have added all values to the tree', () => {
+				const tree: any = search['_indexedData']['age'].tree;
+
+				expect(
+					tree.getValues().sort()
+				).toEqual([25, 30, 35]);
+			});
+
 			it('should have set the entries to their indexes', () => {
-				const indexed: any = search['_indexedData']['age'];
+				const indexed: any = search['_indexedData']['age'].indexed;
 
 				expect(indexed['25'].map(elem => elem.item)).toEqual([data[1]]);
 				expect(indexed['30'].map(elem => elem.item)).toEqual([data[0]]);
@@ -177,15 +193,23 @@ describe('Search', () => {
 			});
 
 			it('should have indexed all values', () => {
-				const indexed: any = search['_indexedData']['birthday'];
+				const indexed: any = search['_indexedData']['birthday'].indexed;
 
 				expect(
 					Object.keys(indexed).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
 				).toEqual(['1983-01-01', '1988-01-01', '1993-01-01']);
 			});
 
+			it('should have added all values to the tree', () => {
+				const tree: any = search['_indexedData']['birthday'].tree;
+
+				expect(
+					tree.getValues().map(date => date.get('year')).sort()
+				).toEqual([1983, 1988, 1993]);
+			});
+
 			it('should have set the entries to their indexes', () => {
-				const indexed: any = search['_indexedData']['birthday'];
+				const indexed: any = search['_indexedData']['birthday'].indexed;
 
 				expect(indexed['1983-01-01'].map(elem => elem.item)).toEqual([data[2]]);
 				expect(indexed['1988-01-01'].map(elem => elem.item)).toEqual([data[0]]);
@@ -213,7 +237,7 @@ describe('Search', () => {
 		});
 
 		it('should not have indexed old data', () => {
-			const indexed: any = search['_indexedData']['name'];
+			const indexed: any = search['_indexedData']['name'].indexed;
 
 			expect(indexed['alice'].map(elem => elem.item)).toEqual([data[0]]);
 		});
@@ -221,7 +245,7 @@ describe('Search', () => {
 		it('should have indexed all data', () => {
 			search.reIndex();
 
-			const indexed: any = search['_indexedData']['name'];
+			const indexed: any = search['_indexedData']['name'].indexed;
 
 			expect(indexed['alice'].map(elem => elem.item)).toEqual([newPerson, data[0]]);
 		});
@@ -427,7 +451,7 @@ describe('Search', () => {
 								match: Match.GT
 							}
 						};
-
+						
 						expect(
 							search.find(query).map(elem => elem.age).sort()
 						).toEqual([31.415, 35]);

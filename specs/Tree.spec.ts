@@ -10,6 +10,13 @@ describe('NumberTree', () => {
 			.forEach(val => tree.add(val));
 	});
 
+	describe('getValues()', () => {
+		it('should extract all values', () => {
+			expect(tree.getValues())
+				.toEqual([17, 3, 1, 8, 5, 25, 19, 22]);
+		});
+	});
+
 	describe('smaller than', () => {
 		it('should extract all numbers smaller than a reference', () => {
 			expect(tree.getSmallerElements(20))

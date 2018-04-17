@@ -1,7 +1,7 @@
 import { Tree } from "./Tree";
 import { Moment, unitOfTime } from "moment";
 
-export class NumberTree extends Tree<Moment> {
+export class MomentTree extends Tree<Moment> {
 	constructor(granularity: unitOfTime.StartOf) {
 		super(
 			(a: Moment, b: Moment) => a.isAfter(b, granularity),
