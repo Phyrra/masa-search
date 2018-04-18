@@ -8,9 +8,7 @@ import { Index } from './types/Index.interface';
 import { Query } from './types/Query.interface';
 import { Condition } from './types/Condition.interface';
 import { getMaxAllowedDistance, levenshtein } from './helpers/levenshtein';
-import { Tree } from './tree/Tree';
-import { MomentTree } from './tree/MomentTree';
-import { NumberTree } from './tree/NumberTree';
+import { SortArray, SortMomentArray, SortNumberArray } from './helpers/SortArray';
 
 const DATE_FORMAT: string = 'YYYY-MM-DD';
 
@@ -69,17 +67,17 @@ const untransformers: Untransformers = {
 	[Type.DATE]: (value: string) => moment(value, DATE_FORMAT)
 }
 
-declare type TreeKeyExtractorFunction = (tree: Tree<any>, reference: any) => any[];
+declare type ListKeyExtractorFunction = (arr: SortArray<any>, reference: any) => any[];
 
-declare type TreeKeyExtractors = {
-	[key: string]: TreeKeyExtractorFunction;
+declare type ListKeyExtractors = {
+	[key: string]: ListKeyExtractorFunction;
 }
 
-const treeKeyExtractors: TreeKeyExtractors = {
-	[Match.GT]: (tree: Tree<any>, reference: any) => tree.getBiggerElements(reference),
-	[Match.LT]: (tree: Tree<any>, reference: any) => tree.getSmallerElements(reference),
-	[Match.GTE]: (tree: Tree<any>, reference: any) => tree.getBiggerEqualsElements(reference),
-	[Match.LTE]: (tree: Tree<any>, reference: any) => tree.getSmallerEqualsElements(reference)
+const listKeyExtractors: ListKeyExtractors = {
+	[Match.GT]: (arr: SortArray<any>, reference: any) => arr.getBiggerThan(reference),
+	[Match.LT]: (arr: SortArray<any>, reference: any) => arr.getSmallerThan(reference),
+	[Match.GTE]: (arr: SortArray<any>, reference: any) => arr.getBiggerEqualsTo(reference),
+	[Match.LTE]: (arr: SortArray<any>, reference: any) => arr.getSmallerEqualsTo(reference)
 };
 
 interface WrappedItem {
@@ -93,7 +91,7 @@ interface IndexedData {
 
 interface IndexObj {
 	indexed: IndexedData;
-	tree: Tree<any> | null;
+	sorted: SortArray<any> | null;
 }
 
 interface IndexMap {
@@ -123,7 +121,7 @@ export class Search {
 
 	addData(data: any[]): Search {
 		this._unindexedData = this._unindexedData.concat(data);
-		
+
 		data.forEach(item => {
 			const wrappedItem: WrappedItem = {
 				id: guid(),
@@ -139,12 +137,12 @@ export class Search {
 
 				keys.forEach(key => {
 					if (!this._indexedData.hasOwnProperty(index.key)) {
-						const getTree: (type: Type) => Tree<any> | null = (type) => {
+						const getSortedArray: (type: Type) => SortArray<any> | null = (type) => {
 							switch (type) {
 								case Type.NUMBER:
-									return new NumberTree();
+									return new SortNumberArray();
 								case Type.DATE:
-									return new MomentTree('day');
+									return new SortMomentArray('day');
 								default:
 									return null;
 							}
@@ -152,7 +150,7 @@ export class Search {
 
 						this._indexedData[index.key] = {
 							indexed: {},
-							tree: getTree(index.type)
+							sorted: getSortedArray(index.type)
 						};
 					}
 
@@ -163,8 +161,8 @@ export class Search {
 					}
 
 					indexObj.indexed[key].push(wrappedItem);
-					if (indexObj.tree != null) {
-						indexObj.tree.add(untransformers[index.type](key));
+					if (indexObj.sorted != null) {
+						indexObj.sorted.push(untransformers[index.type](key));
 					}
 				});
 			});
@@ -231,12 +229,12 @@ export class Search {
 			case Match.GTE:
 			case Match.LT:
 			case Match.LTE:
-				const tree: Tree<any> | null = indexedData.tree;
-				if (tree == null) {
-					throw new Error(`Type ${query.index.type} has no tree for ${match}`);
+				const arr: SortArray<any> | null = indexedData.sorted;
+				if (arr == null) {
+					throw new Error(`Type ${query.index.type} has no sorted array for ${match}`);
 				}
 
-				return treeKeyExtractors[match](tree, untransformers[query.index.type](value))
+				return listKeyExtractors[match](arr, untransformers[query.index.type](value))
 					.map(key => transformers[query.index.type](key)[0])
 					.reduce(reducer, [] as WrappedItem[]);
 			default:

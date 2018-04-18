@@ -73,8 +73,8 @@ describe('Search', () => {
 				).toEqual(['alice', 'beat', 'charlie']);
 			});
 
-			it('should not have created a tree', () => {
-				expect(search['_indexedData']['name'].tree).toBeNull();
+			it('should not have created a sorted array', () => {
+				expect(search['_indexedData']['name'].sorted).toBeNull();
 			});
 
 			it('should have set the entries to their indexes', () => {
@@ -122,8 +122,8 @@ describe('Search', () => {
 				).toEqual(['cool', 'he', 'is', 'she', 'too']);
 			});
 
-			it('should not have created a tree', () => {
-				expect(search['_indexedData']['comment'].tree).toBeNull();
+			it('should not have created a sorted array', () => {
+				expect(search['_indexedData']['comment'].sorted).toBeNull();
 			});
 
 			it('should have set the entries to their indexes', () => {
@@ -160,11 +160,11 @@ describe('Search', () => {
 				).toEqual([25, 30, 35]);
 			});
 
-			it('should have added all values to the tree', () => {
-				const tree: any = search['_indexedData']['age'].tree;
+			it('should have added all values in sorted order', () => {
+				const arr: any = search['_indexedData']['age'].sorted;
 
 				expect(
-					tree.getValues().sort()
+					arr.getAll()
 				).toEqual([25, 30, 35]);
 			});
 
@@ -200,11 +200,11 @@ describe('Search', () => {
 				).toEqual(['1983-01-01', '1988-01-01', '1993-01-01']);
 			});
 
-			it('should have added all values to the tree', () => {
-				const tree: any = search['_indexedData']['birthday'].tree;
+			it('should have added all values in sorted order', () => {
+				const sorted: any = search['_indexedData']['birthday'].sorted;
 
 				expect(
-					tree.getValues().map(date => date.get('year')).sort()
+					sorted.getAll().map(date => date.get('year'))
 				).toEqual([1983, 1988, 1993]);
 			});
 
@@ -275,7 +275,7 @@ describe('Search', () => {
 
 					expect(search.find(query)).toEqual([]);
 				});
-	
+
 				it('should find an existing element', () => {
 					const query: Query = {
 						condition: {
@@ -451,7 +451,7 @@ describe('Search', () => {
 								match: Match.GT
 							}
 						};
-						
+
 						expect(
 							search.find(query).map(elem => elem.age).sort()
 						).toEqual([31.415, 35]);

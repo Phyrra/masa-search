@@ -1,4 +1,4 @@
-import { Condition } from "./Condition.interface";
+import { Condition } from './Condition.interface';
 
 export interface Query {
 	and?: Query[],
