@@ -20,7 +20,7 @@ describe('number indexes', () => {
 		search2 = new Search();
 		search2.addIndex(index);
 	});
-	
+
 	it('should grow time linearly', () => {
 		const query: Query = {
 			condition: {
@@ -29,11 +29,11 @@ describe('number indexes', () => {
 				match: Match.GT
 			}
 		};
-		
+
 		const data1: any[] = [];
-		for (let i = 0; i < 1000; ++i) {
+		for (let i = 0; i < 10000; ++i) {
 			data1.push({
-				value: Math.floor(Math.random() * 1000)
+				value: Math.floor(Math.random() * 10000)
 			});
 		}
 
@@ -46,9 +46,9 @@ describe('number indexes', () => {
 		const time1: number = stop1 - start1;
 
 		const data2: any[] = [];
-		for (let i = 0; i < 10000; ++i) {
+		for (let i = 0; i < 100000; ++i) {
 			data2.push({
-				value: Math.floor(Math.random() * 10000)
+				value: Math.floor(Math.random() * 100000)
 			});
 		}
 

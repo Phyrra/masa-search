@@ -28,6 +28,10 @@ module.exports = function(config) {
 				]
 			}
 		},
-		singleRun: true
+		singleRun: true,
+		captureTimeout: 30000,
+		browserDisconnectTolerance: 3,
+		browserDisconnectTimeout: 30000,
+		browserNoActivityTimeout: 30000
 	});
 };
