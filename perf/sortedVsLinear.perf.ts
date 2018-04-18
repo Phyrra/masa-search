@@ -46,12 +46,12 @@ class SortedSearch {
 			}
 
 			this._indexedData[key].push(elem);
-			this._sorted.push(val);
+			this._sorted.push(String(val));
 		});
 	}
 
 	findBiggerThan(value: number): any[] {
-		return this._sorted.getBiggerThan(value)
+		return this._sorted.getBiggerThan(String(value))
 			.reduce((acc, val) => acc.concat(this._indexedData[value.toString()]), []);
 	}
 }

@@ -41,7 +41,7 @@ const transformers: Transformers = {
 			return [];
 		}
 
-		return [value.toString()];
+		return [String(value)];
 	},
 	[Type.DATE]: (value: Date | string) => {
 		if (value == null) {
@@ -56,17 +56,6 @@ const transformers: Transformers = {
 	}
 }
 
-declare type UntransformerFunction = (value: string) => any;
-
-declare type Untransformers = {
-	[key: string]: UntransformerFunction;
-}
-
-const untransformers: Untransformers = {
-	[Type.NUMBER]: (value: string) => Number(value),
-	[Type.DATE]: (value: string) => moment(value, DATE_FORMAT)
-}
-
 declare type ListKeyExtractorFunction = (arr: SortArray<any>, reference: any) => any[];
 
 declare type ListKeyExtractors = {
@@ -74,10 +63,10 @@ declare type ListKeyExtractors = {
 }
 
 const listKeyExtractors: ListKeyExtractors = {
-	[Match.GT]: (arr: SortArray<any>, reference: any) => arr.getBiggerThan(reference),
-	[Match.LT]: (arr: SortArray<any>, reference: any) => arr.getSmallerThan(reference),
-	[Match.GTE]: (arr: SortArray<any>, reference: any) => arr.getBiggerEqualsTo(reference),
-	[Match.LTE]: (arr: SortArray<any>, reference: any) => arr.getSmallerEqualsTo(reference)
+	[Match.GT]: (arr: SortArray<any>, reference: string) => arr.getBiggerThan(reference),
+	[Match.LT]: (arr: SortArray<any>, reference: string) => arr.getSmallerThan(reference),
+	[Match.GTE]: (arr: SortArray<any>, reference: string) => arr.getBiggerEqualsTo(reference),
+	[Match.LTE]: (arr: SortArray<any>, reference: string) => arr.getSmallerEqualsTo(reference)
 };
 
 interface WrappedItem {
@@ -142,7 +131,7 @@ export class Search {
 								case Type.NUMBER:
 									return new SortNumberArray();
 								case Type.DATE:
-									return new SortMomentArray('day');
+									return new SortMomentArray(DATE_FORMAT, 'day');
 								default:
 									return null;
 							}
@@ -162,7 +151,7 @@ export class Search {
 
 					indexObj.indexed[key].push(wrappedItem);
 					if (indexObj.sorted != null) {
-						indexObj.sorted.push(untransformers[index.type](key));
+						indexObj.sorted.push(key);
 					}
 				});
 			});
@@ -229,14 +218,31 @@ export class Search {
 			case Match.GTE:
 			case Match.LT:
 			case Match.LTE:
+				const getTimed = (fnc) => {
+					const start = Date.now();
+					const ret = fnc();
+					const end = Date.now();
+
+					console.log('time taken', end - start);
+
+					return ret;
+				}
+				
 				const arr: SortArray<any> | null = indexedData.sorted;
 				if (arr == null) {
 					throw new Error(`Type ${query.index.type} has no sorted array for ${match}`);
 				}
 
-				return listKeyExtractors[match](arr, untransformers[query.index.type](value))
-					.map(key => transformers[query.index.type](key)[0])
-					.reduce(reducer, [] as WrappedItem[]);
+				let keys: string[];
+
+				keys = getTimed(() => listKeyExtractors[match](arr, value));
+				//keys = getTimed(() => listKeyExtractors[match](arr, untransformers[query.index.type](value)).map(key => String(key)));
+				
+				//keys = getTimed(() => Object.keys(indexedData.indexed).filter(key => Number(key) > Number(value)));
+				//keys = getTimed(() => indexedData.sorted.getBiggerThan(Number(value)).map(value => String(value)));
+
+				const values = getTimed(() => keys.reduce(reducer, []));
+				return values;
 			default:
 				throw new Error(`Unknown matcher ${query.match}`);
 		}
