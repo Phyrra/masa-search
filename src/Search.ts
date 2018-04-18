@@ -223,18 +223,18 @@ export class Search {
 		return endResults;
 	}
 
-	private _extractMatchingResults(query: Condition, value: string, indexedData: IndexedData): WrappedItem[] {
+	private _extractMatchingResults(query: Condition, value: string, indexedData: IndexedData): WrappedItem[][] {
 		const match: Match = query.match || Match.EQ;
 
-		const extractor: (evalFnc: EvaluatorFunction) => WrappedItem[] = (evalFnc) => {
+		const extractor: (evalFnc: EvaluatorFunction) => WrappedItem[][] = (evalFnc) => {
 			return Object.keys(indexedData)
 				.filter(key => evalFnc(key))
-				.reduce((acc, key) => acc.concat(indexedData[key]), [] as WrappedItem[]);
+				.map(key => indexedData[key]);
 		};
 
 		switch (match) {
 			case Match.EQ:
-				return indexedData[value];
+				return [indexedData[value]];
 			case Match.FUZZY:
 				const fuzzyEval: EvaluatorFunction = (key: string) => {
 					const maxAllowedDistance = getMaxAllowedDistance(key, value);
@@ -272,13 +272,14 @@ export class Search {
 		values.forEach(value => {
 			const innerResults: ResultMap = {};
 
-			const partialResults: WrappedItem[] = this._extractMatchingResults(query, value, indexedData);
-			if (partialResults && partialResults.length > 0) {
-				partialResults.forEach(result => {
-					innerResults[result.id] = result.item;
+			this._extractMatchingResults(query, value, indexedData)
+				.filter(partialResult => !!partialResult)
+				.forEach(partialResult => {
+					partialResult.forEach(result => {
+						innerResults[result.id] = result.item;
+					});
 				});
-			}
-
+				
 			valueResults.push(innerResults);
 		});
 

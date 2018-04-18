@@ -22,6 +22,8 @@ describe('number indexes', () => {
 	});
 
 	it('should grow time linearly', () => {
+		const factor: number = 50;
+
 		/*
 		 * Small Block
 		 */
@@ -31,13 +33,13 @@ describe('number indexes', () => {
 		const data1: any[] = [];
 		for (let i = 0; i < max1; ++i) {
 			data1.push({
-				value: Math.floor(Math.random() * max1)
+				value: i
 			});
 		}
 
 		search1.addData(data1);
 
-		const start1: number = new Date().getTime();
+		const start1: number = Date.now();
 		search1.find({
 			condition: {
 				index: index,
@@ -45,7 +47,7 @@ describe('number indexes', () => {
 				match: Match.GT
 			}
 		});
-		const stop1: number = new Date().getTime();
+		const stop1: number = Date.now();
 
 		const time1: number = stop1 - start1;
 
@@ -53,18 +55,18 @@ describe('number indexes', () => {
 		 * Big block
 		 */
 
-		const max2: number = max1 * 50;
+		const max2: number = max1 * factor;
 
 		const data2: any[] = [];
 		for (let i = 0; i < max2; ++i) {
 			data2.push({
-				value: Math.floor(Math.random() * max2)
+				value: i
 			});
 		}
 
 		search2.addData(data2);
 
-		const start2: number = new Date().getTime();
+		const start2: number = Date.now();
 		search2.find({
 			condition: {
 				index: index,
@@ -72,7 +74,7 @@ describe('number indexes', () => {
 				match: Match.GT
 			}
 		});
-		const stop2: number = new Date().getTime();
+		const stop2: number = Date.now();
 
 		const time2: number = stop2 - start2;
 
@@ -82,7 +84,7 @@ describe('number indexes', () => {
 
 		console.log('query times', time1, time2);
 
-		expect(time1 * 10).toBeGreaterThan(time2);
+		expect(time1 * factor).toBeGreaterThan(time2);
 	});
 
 	it('should have swift direct access', () => {
@@ -104,7 +106,7 @@ describe('number indexes', () => {
 
 		search1.addData(data);
 
-		const start = new Date().getTime();
+		const start = Date.now();
 		search1.find({
 			condition: {
 				index: index,
@@ -112,7 +114,7 @@ describe('number indexes', () => {
 				match: Match.EQ
 			}
 		});
-		const stop = new Date().getTime();
+		const stop = Date.now();
 
 		const time = stop - start;
 
