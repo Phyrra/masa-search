@@ -6,7 +6,7 @@ var ofTheValar: string = require('./_OfTheValar.txt');
 var ofTheBeginningOfDays: string = require('./_OfTheBeginningOfDays.txt');
 
 const getNumberOfKeys: (search: Search) => number = (search) => {
-	return Object.keys(search['_indexedData']['text']).length;
+	return Object.keys(search['_indexedData']['text'].indexed).length;
 };
 
 const countWords: (text: string) => number = (text) => {
@@ -100,4 +100,3 @@ describe('text index', () => {
 	});
 });
 
- 
