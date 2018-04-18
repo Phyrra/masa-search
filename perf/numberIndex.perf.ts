@@ -41,7 +41,7 @@ describe('number indexes', () => {
 		search1.find({
 			condition: {
 				index: index,
-				value: max1 / 2,
+				value: max1 * 0.9,
 				match: Match.GT
 			}
 		});
@@ -53,7 +53,7 @@ describe('number indexes', () => {
 		 * Big block
 		 */
 
-		const max2: number = max1 * 10;
+		const max2: number = max1 * 50;
 
 		const data2: any[] = [];
 		for (let i = 0; i < max2; ++i) {
@@ -68,7 +68,7 @@ describe('number indexes', () => {
 		search2.find({
 			condition: {
 				index: index,
-				value: max2 / 2,
+				value: max2 * 0.9,
 				match: Match.GT
 			}
 		});
