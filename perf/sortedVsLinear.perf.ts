@@ -52,12 +52,12 @@ class SortedSearch {
 
 	findBiggerThan(value: number): any[] {
 		return this._sorted.getBiggerThan(String(value))
-			.reduce((acc, val) => acc.concat(this._indexedData[value.toString()]), []);
+			.reduce((acc, val) => acc.concat(this._indexedData[value]), []);
 	}
 }
 
 describe('Comparison', () => {
-	const max: number = 250000;
+	const max: number = 10000;
 
 	let search1: LinearSearch;
 	let search2: SortedSearch;
