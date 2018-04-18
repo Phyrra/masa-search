@@ -26,14 +26,14 @@ describe('Sorted array', () => {
 		sortArr = new SortNumberArray();
 		arr = [];
 
-		for (let i = 0; i < 1000000; ++i) {
+		for (let i = 0; i < 100000; ++i) {
 			sortArr.push(String(i));
 			arr.push(i);
 		}
 	});
 
 	it('should have less time to find a number in sorted', () => {
-		const find: number = 400000;
+		const find: number = 40000;
 
 		const start1: number = Date.now();
 		findIndex(arr, find);

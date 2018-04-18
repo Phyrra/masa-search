@@ -4,7 +4,7 @@ import { Search } from "../src/Search";
 import { Match } from "../src/types/Match.enum";
 import { Query } from "../src/types/Query.interface";
 
-fdescribe('number indexes', () => {
+describe('number indexes', () => {
 	const index: Index = {
 		key: 'value',
 		type: Type.NUMBER
@@ -21,7 +21,9 @@ fdescribe('number indexes', () => {
 		search2.addIndex(index);
 	});
 
-	it('should grow time linearly', () => {
+	it('should grow time less than linearly', () => {
+		const factor: number = 25;
+
 		/*
 		 * Small Block
 		 */
@@ -53,7 +55,7 @@ fdescribe('number indexes', () => {
 		 * Big block
 		 */
 
-		const max2: number = max1 * 10;
+		const max2: number = max1 * factor;
 
 		const data2: any[] = [];
 		for (let i = 0; i < max2; ++i) {
@@ -82,10 +84,9 @@ fdescribe('number indexes', () => {
 
 		console.log('query times', time1, time2);
 
-		expect(time1 * 10).toBeGreaterThan(time2);
+		expect(time1 * factor).toBeGreaterThan(time2);
 	});
 
-	/*
 	it('should have swift direct access', () => {
 		const max: number = 100000;
 
@@ -121,5 +122,4 @@ fdescribe('number indexes', () => {
 
 		expect(time).toBeLessThan(10);
 	});
-	*/
 });

@@ -13,14 +13,14 @@ describe('Sorted array', () => {
 	describe('getAll()', () => {
 		it('should be in order', () => {
 			expect(arr.getAll())
-				.toEqual(['1', '3', '5', '8', '17', '19', '22', '25']);
+				.toEqual([1, 3, 5, 8, 17, 19, 22, 25]);
 		});
 
 		it('should ignore duplicates', () => {
 			arr.push('17');
 
 			expect(arr.getAll())
-				.toEqual(['1', '3', '5', '8', '17', '19', '22', '25']);
+				.toEqual([1, 3, 5, 8, 17, 19, 22, 25]);
 		});
 	});
 
