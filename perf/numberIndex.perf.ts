@@ -37,7 +37,7 @@ describe('number indexes', () => {
 
 		search1.addData(data1);
 
-		const start1: number = new Date().getTime();
+		const start1: number = Date.now();
 		search1.find({
 			condition: {
 				index: index,
@@ -45,7 +45,7 @@ describe('number indexes', () => {
 				match: Match.GT
 			}
 		});
-		const stop1: number = new Date().getTime();
+		const stop1: number = Date.now();
 
 		const time1: number = stop1 - start1;
 
@@ -64,7 +64,7 @@ describe('number indexes', () => {
 
 		search2.addData(data2);
 
-		const start2: number = new Date().getTime();
+		const start2: number = Date.now();
 		search2.find({
 			condition: {
 				index: index,
@@ -72,9 +72,15 @@ describe('number indexes', () => {
 				match: Match.GT
 			}
 		});
-		const stop2: number = new Date().getTime();
+		const stop2: number = Date.now();
 
 		const time2: number = stop2 - start2;
+
+		console.log(
+			'test',
+			Object.keys(search2['_indexedData']['value'].indexed).length,
+			search2['_indexedData']['value'].sorted['_data'].length
+		);
 
 		/*
 		 * Eval block
@@ -104,7 +110,7 @@ describe('number indexes', () => {
 
 		search1.addData(data);
 
-		const start = new Date().getTime();
+		const start = Date.now();
 		search1.find({
 			condition: {
 				index: index,
@@ -112,7 +118,7 @@ describe('number indexes', () => {
 				match: Match.EQ
 			}
 		});
-		const stop = new Date().getTime();
+		const stop = Date.now();
 
 		const time = stop - start;
 

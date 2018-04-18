@@ -35,15 +35,15 @@ describe('Sorted array', () => {
 	it('should have less time to find a number in sorted', () => {
 		const find: number = 400000;
 
-		const start1: number = new Date().getTime();
+		const start1: number = Date.now();
 		findIndex(arr, find);
-		const stop1: number = new Date().getTime();
+		const stop1: number = Date.now();
 
 		const duration1: number = stop1 - start1;
 
-		const start2: number = new Date().getTime();
+		const start2: number = Date.now();
 		sortArr['_find'](find);
-		const stop2: number = new Date().getTime();
+		const stop2: number = Date.now();
 
 		const duration2: number = stop2 - start2;
 
@@ -55,15 +55,15 @@ describe('Sorted array', () => {
 	it('should have less time to find a subset', () => {
 		const find: number = 400000;
 
-		const start1: number = new Date().getTime();
+		const start1: number = Date.now();
 		getBigger(arr, find);
-		const stop1: number = new Date().getTime();
+		const stop1: number = Date.now();
 
 		const duration1: number = stop1 - start1;
 
-		const start2: number = new Date().getTime();
+		const start2: number = Date.now();
 		sortArr.getBiggerThan(find);
-		const stop2: number = new Date().getTime();
+		const stop2: number = Date.now();
 
 		const duration2: number = stop2 - start2;
 
