@@ -196,14 +196,12 @@ export class Search {
 		return endResults;
 	}
 
-	private _extractMatchingResults(query: Condition, value: string, indexedData: IndexObj): WrappedItem[] {
+	private _extractMatchingResults(query: Condition, value: string, indexedData: IndexObj): WrappedItem[][] {
 		const match: Match = query.match || Match.EQ;
-
-		const reducer: (acc: WrappedItem[], key: string) => WrappedItem[] = (acc, key) => acc.concat(indexedData.indexed[key]);
 
 		switch (match) {
 			case Match.EQ:
-				return indexedData.indexed[value];
+				return [indexedData.indexed[value]];
 			case Match.FUZZY:
 				const fuzzyEval: (value: string) => boolean = (key: string) => {
 					const maxAllowedDistance = getMaxAllowedDistance(key, value);
@@ -213,36 +211,18 @@ export class Search {
 
 				return Object.keys(indexedData.indexed)
 					.filter(key => fuzzyEval(key))
-					.reduce(reducer, [] as WrappedItem[]);
+					.map(key => indexedData.indexed[key]);
 			case Match.GT:
 			case Match.GTE:
 			case Match.LT:
 			case Match.LTE:
-				const getTimed = (fnc) => {
-					const start = Date.now();
-					const ret = fnc();
-					const end = Date.now();
-
-					console.log('time taken', end - start);
-
-					return ret;
-				}
-				
 				const arr: SortArray<any> | null = indexedData.sorted;
 				if (arr == null) {
 					throw new Error(`Type ${query.index.type} has no sorted array for ${match}`);
 				}
 
-				let keys: string[];
-
-				keys = getTimed(() => listKeyExtractors[match](arr, value));
-				//keys = getTimed(() => listKeyExtractors[match](arr, untransformers[query.index.type](value)).map(key => String(key)));
-				
-				//keys = getTimed(() => Object.keys(indexedData.indexed).filter(key => Number(key) > Number(value)));
-				//keys = getTimed(() => indexedData.sorted.getBiggerThan(Number(value)).map(value => String(value)));
-
-				const values = getTimed(() => keys.reduce(reducer, []));
-				return values;
+				return listKeyExtractors[match](arr, value)
+					.map(key => indexedData.indexed[key]);
 			default:
 				throw new Error(`Unknown matcher ${query.match}`);
 		}
@@ -265,12 +245,13 @@ export class Search {
 		values.forEach(value => {
 			const innerResults: ResultMap = {};
 
-			const partialResults: WrappedItem[] = this._extractMatchingResults(query, value, indexedData);
-			if (partialResults && partialResults.length > 0) {
-				partialResults.forEach(result => {
-					innerResults[result.id] = result.item;
+			this._extractMatchingResults(query, value, indexedData)
+				.filter(partialResult => !!partialResult)
+				.forEach(partialResult => {
+					partialResult.forEach(result => {
+						innerResults[result.id] = result.item;
+					});
 				});
-			}
 
 			valueResults.push(innerResults);
 		});
