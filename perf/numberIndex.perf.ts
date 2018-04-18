@@ -22,46 +22,102 @@ describe('number indexes', () => {
 	});
 
 	it('should grow time linearly', () => {
-		const query: Query = {
-			condition: {
-				index: index,
-				value: 500,
-				match: Match.GT
-			}
-		};
+		/*
+		 * Small Block
+		 */
+
+		const max1: number = 10000;
 
 		const data1: any[] = [];
-		for (let i = 0; i < 10000; ++i) {
+		for (let i = 0; i < max1; ++i) {
 			data1.push({
-				value: Math.floor(Math.random() * 10000)
+				value: Math.floor(Math.random() * max1)
 			});
 		}
 
 		search1.addData(data1);
 
 		const start1: number = new Date().getTime();
-		search1.find(query);
+		search1.find({
+			condition: {
+				index: index,
+				value: max1 / 2,
+				match: Match.GT
+			}
+		});
 		const stop1: number = new Date().getTime();
 
 		const time1: number = stop1 - start1;
 
+		/*
+		 * Big block
+		 */
+
+		const max2: number = max1 * 10;
+
 		const data2: any[] = [];
-		for (let i = 0; i < 100000; ++i) {
+		for (let i = 0; i < max2; ++i) {
 			data2.push({
-				value: Math.floor(Math.random() * 100000)
+				value: Math.floor(Math.random() * max2)
 			});
 		}
 
 		search2.addData(data2);
 
 		const start2: number = new Date().getTime();
-		search2.find(query);
+		search2.find({
+			condition: {
+				index: index,
+				value: max2 / 2,
+				match: Match.GT
+			}
+		});
 		const stop2: number = new Date().getTime();
 
 		const time2: number = stop2 - start2;
 
-		console.log(time1, time2);
+		/*
+		 * Eval block
+		 */
+
+		console.log('query times', time1, time2);
 
 		expect(time1 * 10).toBeGreaterThan(time2);
+	});
+
+	it('should have swift direct access', () => {
+		const max: number = 100000;
+
+		let value: number;
+
+		const data: any[] = [];
+		for (let i = 0; i < max; ++i) {
+			const nr: number = Math.floor(Math.random() * max);
+			data.push({
+				value: nr
+			});
+
+			if (i === max / 2) {
+				value = nr;
+			}
+		}
+
+		search1.addData(data);
+
+		const start = new Date().getTime();
+		search1.find({
+			condition: {
+				index: index,
+				value: max / 2,
+				match: Match.EQ
+			}
+		});
+		const stop = new Date().getTime();
+
+		const time = stop - start;
+
+		console.log('access time', time);
+
+		expect(time).toBeLessThan(10);
 	});
 });
