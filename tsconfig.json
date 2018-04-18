@@ -11,6 +11,9 @@
 		"types": [
 			"jasmine",
 			"lodash"
+		],
+		"lib": [
+			"es2016"
 		]
 	},
 	"include": [
