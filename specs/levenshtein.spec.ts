@@ -16,6 +16,11 @@ describe('levenshtein()', () => {
 	it('should return 1 for a missing letter', () => {
 		expect(levenshtein('dog', 'do')).toBe(1);
 	});
+
+	it('should return the length of the other if one of the entries is zero', () => {
+		expect(levenshtein('dog', '')).toBe(3);
+		expect(levenshtein('', 'dog')).toBe(3);
+	});
 });
 
 describe('getMaxAllowedDistance()', () => {

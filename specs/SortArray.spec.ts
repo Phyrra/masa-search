@@ -16,7 +16,16 @@ describe('Sorted number array', () => {
 			expect(arr.getAll())
 				.toEqual([1, 3, 5, 8, 17, 19, 22, 25]);
 		});
+	});
 
+	describe('getAllTransformed()', () => {
+		it('should be in order', () => {
+			expect(arr.getAllTransformed())
+				.toEqual(['1', '3', '5', '8', '17', '19', '22', '25']);
+		});
+	});
+
+	describe('push()', () => {
 		it('should ignore duplicates', () => {
 			arr.push(17);
 
@@ -81,7 +90,9 @@ describe('Sorted moment array', () => {
 			expect(arr.getAllTransformed())
 				.toEqual(['1980-01-01', '1990-01-01', '2000-01-01']);
 		});
+	});
 
+	describe('push()', () => {
 		it('should ignore duplicates', () => {
 			arr.push(moment('1990-01-01'));
 
