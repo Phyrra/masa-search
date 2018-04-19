@@ -1,4 +1,5 @@
 import { SortNumberArray } from '../src/helpers/SortArray';
+import { doTimed } from './helpers/doTimed';
 
 describe('Sorted array', () => {
 	let sortArr: SortNumberArray;
@@ -35,19 +36,8 @@ describe('Sorted array', () => {
 	it('should have less time to find a number in sorted', () => {
 		const find: number = 40000;
 
-		const start1: number = Date.now();
-		findIndex(arr, find);
-		const stop1: number = Date.now();
-
-		const duration1: number = stop1 - start1;
-
-		const start2: number = Date.now();
-		sortArr['_find'](find);
-		const stop2: number = Date.now();
-
-		const duration2: number = stop2 - start2;
-
-		console.log('times to find', duration1, duration2);
+		const duration1: number = doTimed(() => findIndex(arr, find), 'find in linear array');
+		const duration2: number = doTimed(() => sortArr['_find'](find), 'find in sorted array');
 
 		expect(duration2).toBeLessThan(duration1);
 	});
@@ -55,19 +45,8 @@ describe('Sorted array', () => {
 	it('should have less time to find a subset', () => {
 		const find: number = 400000;
 
-		const start1: number = Date.now();
-		getBigger(arr, find);
-		const stop1: number = Date.now();
-
-		const duration1: number = stop1 - start1;
-
-		const start2: number = Date.now();
-		sortArr.getBiggerThan(find);
-		const stop2: number = Date.now();
-
-		const duration2: number = stop2 - start2;
-
-		console.log('times to get subset', duration1, duration2);
+		const duration1: number = doTimed(() => getBigger(arr, find), 'subset of linear array');
+		const duration2: number = doTimed(() => sortArr.getBiggerThan(find), 'subset of sorted array');
 
 		expect(duration2).toBeLessThan(duration1);
 	});

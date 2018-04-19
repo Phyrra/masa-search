@@ -1,9 +1,9 @@
 import { Search } from "../src/Search";
 import { Type } from "../src/types/Type.enum";
 
-var ainulindale: string = require('./_Ainulindale.txt');
-var ofTheValar: string = require('./_OfTheValar.txt');
-var ofTheBeginningOfDays: string = require('./_OfTheBeginningOfDays.txt');
+var ainulindale: string = require('./data/Ainulindale.txt');
+var ofTheValar: string = require('./data/OfTheValar.txt');
+var ofTheBeginningOfDays: string = require('./data/OfTheBeginningOfDays.txt');
 
 const getNumberOfKeys: (search: Search) => number = (search) => {
 	return Object.keys(search['_indexedData']['text'].indexed).length;

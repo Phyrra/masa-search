@@ -1,8 +1,9 @@
-import { Index } from "../src/types/Index.interface";
-import { Type } from "../src/types/Type.enum";
-import { Search } from "../src/Search";
-import { Match } from "../src/types/Match.enum";
-import { Query } from "../src/types/Query.interface";
+import { Index } from '../src/types/Index.interface';
+import { Type } from '../src/types/Type.enum';
+import { Search } from '../src/Search';
+import { Match } from '../src/types/Match.enum';
+import { Query } from '../src/types/Query.interface';
+import { doTimed } from './helpers/doTimed';
 
 describe('number indexes', () => {
 	const index: Index = {
@@ -12,17 +13,6 @@ describe('number indexes', () => {
 
 	let search1: Search;
 	let search2: Search;
-
-	const doTimed: (fnc: Function, name: string) => number = (fnc, name) => {
-		const start: number = Date.now();
-		fnc();
-		const stop: number = Date.now();
-
-		const duration: number = stop - start;
-		console.log(name, duration);
-
-		return duration;
-	}
 
 	beforeEach(() => {
 		search1 = new Search();
