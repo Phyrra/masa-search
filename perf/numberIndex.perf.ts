@@ -99,35 +99,24 @@ describe('number indexes', () => {
 	it('should have swift direct access', () => {
 		const max: number = 100000;
 
-		let value: number;
-
 		const data: any[] = [];
 		for (let i = 0; i < max; ++i) {
-			const nr: number = Math.floor(Math.random() * max);
 			data.push({
-				value: nr
+				value: i
 			});
-
-			if (i === max / 2) {
-				value = nr;
-			}
 		}
 
 		search1.addData(data);
 
-		const start = Date.now();
-		search1.find({
-			condition: {
-				index: index,
-				value: max / 2,
-				match: Match.EQ
-			}
-		});
-		const stop = Date.now();
-
-		const time = stop - start;
-
-		console.log('access time', time);
+		const time = doTimed(() => {
+			search1.find({
+				condition: {
+					index: index,
+					value: max / 2,
+					match: Match.EQ
+				}
+			});
+		}, 'direct access');
 
 		expect(time).toBeLessThan(10);
 	});
