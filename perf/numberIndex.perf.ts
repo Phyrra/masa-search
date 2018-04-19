@@ -13,6 +13,17 @@ describe('number indexes', () => {
 	let search1: Search;
 	let search2: Search;
 
+	const doTimed: (fnc: Function, name: string) => number = (fnc, name) => {
+		const start: number = Date.now();
+		fnc();
+		const stop: number = Date.now();
+
+		const duration: number = stop - start;
+		console.log(name, duration);
+
+		return duration;
+	}
+
 	beforeEach(() => {
 		search1 = new Search();
 		search1.addIndex(index);
@@ -21,8 +32,8 @@ describe('number indexes', () => {
 		search2.addIndex(index);
 	});
 
-	it('should grow time linearly', () => {
-		const factor: number = 50;
+	it('should grow time less than linearly', () => {
+		const factor: number = 100;
 
 		/*
 		 * Small Block
@@ -30,26 +41,26 @@ describe('number indexes', () => {
 
 		const max1: number = 10000;
 
-		const data1: any[] = [];
-		for (let i = 0; i < max1; ++i) {
-			data1.push({
-				value: i
-			});
-		}
-
-		search1.addData(data1);
-
-		const start1: number = Date.now();
-		search1.find({
-			condition: {
-				index: index,
-				value: max1 * 0.9,
-				match: Match.GT
+		doTimed(() => {
+			const data1: any[] = [];
+			for (let i = 0; i < max1; ++i) {
+				data1.push({
+					value: i
+				});
 			}
-		});
-		const stop1: number = Date.now();
 
-		const time1: number = stop1 - start1;
+			search1.addData(data1);
+		}, `adding ${max1} elements`);
+
+		const time1: number = doTimed(() => {
+			search1.find({
+				condition: {
+					index: index,
+					value: max1 * 0.9,
+					match: Match.GT
+				}
+			});
+		}, `finding in ${max1} elements`);
 
 		/*
 		 * Big block
@@ -57,32 +68,30 @@ describe('number indexes', () => {
 
 		const max2: number = max1 * factor;
 
-		const data2: any[] = [];
-		for (let i = 0; i < max2; ++i) {
-			data2.push({
-				value: i
-			});
-		}
-
-		search2.addData(data2);
-
-		const start2: number = Date.now();
-		search2.find({
-			condition: {
-				index: index,
-				value: max2 * 0.9,
-				match: Match.GT
+		doTimed(() => {
+			const data2: any[] = [];
+			for (let i = 0; i < max2; ++i) {
+				data2.push({
+					value: i
+				});
 			}
-		});
-		const stop2: number = Date.now();
 
-		const time2: number = stop2 - start2;
+			search2.addData(data2);
+		}, `adding ${max2} elements`);
+
+		const time2: number = doTimed(() => {
+			search2.find({
+				condition: {
+					index: index,
+					value: max2 * 0.9,
+					match: Match.GT
+				}
+			});
+		}, `finding in ${max2} elements`);
 
 		/*
 		 * Eval block
 		 */
-
-		console.log('query times', time1, time2);
 
 		expect(time1 * factor).toBeGreaterThan(time2);
 	});
@@ -90,35 +99,24 @@ describe('number indexes', () => {
 	it('should have swift direct access', () => {
 		const max: number = 100000;
 
-		let value: number;
-
 		const data: any[] = [];
 		for (let i = 0; i < max; ++i) {
-			const nr: number = Math.floor(Math.random() * max);
 			data.push({
-				value: nr
+				value: i
 			});
-
-			if (i === max / 2) {
-				value = nr;
-			}
 		}
 
 		search1.addData(data);
 
-		const start = Date.now();
-		search1.find({
-			condition: {
-				index: index,
-				value: max / 2,
-				match: Match.EQ
-			}
-		});
-		const stop = Date.now();
-
-		const time = stop - start;
-
-		console.log('access time', time);
+		const time = doTimed(() => {
+			search1.find({
+				condition: {
+					index: index,
+					value: max / 2,
+					match: Match.EQ
+				}
+			});
+		}, 'direct access');
 
 		expect(time).toBeLessThan(10);
 	});
