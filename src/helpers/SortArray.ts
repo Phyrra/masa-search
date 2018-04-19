@@ -60,7 +60,7 @@ export abstract class SortArray<T> {
 		};
 	}
 
-	getAll() {
+	getAll(): T[] {
 		return this._data.slice(0);
 	}
 
@@ -102,9 +102,16 @@ export abstract class SortArray<T> {
 
 		return this._data.slice(0, stopIdx + 1);
 	}
+
+	abstract pushTransformed(value: string): void;
+	abstract getAllTransformed(): string[];
+	abstract getBiggerThanTransformed(value: string): string[];
+	abstract getSmallerThanTransformed(value: string): string[];
+	abstract getBiggerEqualsToTransformed(value: string): string[];
+	abstract getSmallerEqualsToTransformed(value: string): string[];
 }
 
-export class SortNumberArray extends SortArray<any> {
+export class SortNumberArray extends SortArray<number> {
 	constructor() {
 		super(
 			(a: number, b: number) => a > b,
@@ -112,32 +119,46 @@ export class SortNumberArray extends SortArray<any> {
 		);
 	}
 
-	push(value: string): void {
+	private _transform(values: number[]): string[] {
+		return values.map(elem => String(elem));
+	}
+
+	pushTransformed(value: string): void {
 		super.push(Number(value));
 	}
 
-	getBiggerThan(value: string): string[] {
-		return super.getBiggerThan(Number(value))
-			.map(elem => String(elem));
+	getAllTransformed(): string[] {
+		return this._transform(
+			super.getAll()
+		);
 	}
 
-	getSmallerThan(value: string): string[] {
-		return super.getSmallerThan(Number(value))
-			.map(elem => String(elem));
+	getBiggerThanTransformed(value: string): string[] {
+		return this._transform(
+			super.getBiggerThan(Number(value))
+		);
 	}
 
-	getBiggerEqualsTo(value: string): string[] {
-		return super.getBiggerEqualsTo(Number(value))
-			.map(elem => String(elem));
+	getSmallerThanTransformed(value: string): string[] {
+		return this._transform(
+			super.getSmallerThan(Number(value))
+		);
 	}
 
-	getSmallerEqualsTo(value: string): string[] {
-		return super.getSmallerEqualsTo(Number(value))
-			.map(elem => String(elem));
+	getBiggerEqualsToTransformed(value: string): string[] {
+		return this._transform(
+			super.getBiggerEqualsTo(Number(value))
+		);
+	}
+
+	getSmallerEqualsToTransformed(value: string): string[] {
+		return this._transform(
+			super.getSmallerEqualsTo(Number(value))
+		);
 	}
 }
 
-export class SortMomentArray extends SortArray<any> {
+export class SortMomentArray extends SortArray<Moment> {
 	constructor(private dateFormat: string, granularity: unitOfTime.StartOf) {
 		super(
 			(a: Moment, b: Moment) => a.isAfter(b, granularity),
@@ -145,27 +166,41 @@ export class SortMomentArray extends SortArray<any> {
 		);
 	}
 
-	push(value: string): void {
+	private _transform(values: Moment[]): string[] {
+		return values.map(elem => elem.format(this.dateFormat));
+	}
+
+	pushTransformed(value: string): void {
 		super.push(moment(value, this.dateFormat));
 	}
 
-	getBiggerThan(value: string): string[] {
-		return super.getBiggerThan(moment(value, this.dateFormat))
-			.map(elem => elem.format(this.dateFormat));
+	getAllTransformed(): string[] {
+		return this._transform(
+			super.getAll()
+		);
 	}
 
-	getSmallerThan(value: string): string[] {
-		return super.getSmallerThan(moment(value, this.dateFormat))
-			.map(elem => elem.format(this.dateFormat));
+	getBiggerThanTransformed(value: string): string[] {
+		return this._transform(
+			super.getBiggerThan(moment(value, this.dateFormat))
+		);
 	}
 
-	getBiggerEqualsTo(value: string): string[] {
-		return super.getBiggerEqualsTo(moment(value, this.dateFormat))
-			.map(elem => elem.format(this.dateFormat));
+	getSmallerThanTransformed(value: string): string[] {
+		return this._transform(
+			super.getSmallerThan(moment(value, this.dateFormat))
+		);
 	}
 
-	getSmallerEqualsTo(value: string): string[] {
-		return super.getSmallerEqualsTo(moment(value, this.dateFormat))
-			.map(elem => elem.format(this.dateFormat));
+	getBiggerEqualsToTransformed(value: string): string[] {
+		return this._transform(
+			super.getBiggerEqualsTo(moment(value, this.dateFormat))
+		);
+	}
+
+	getSmallerEqualsToTransformed(value: string): string[] {
+		return this._transform(
+			super.getSmallerEqualsTo(moment(value, this.dateFormat))
+		);
 	}
 }

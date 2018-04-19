@@ -63,10 +63,10 @@ declare type ListKeyExtractors = {
 }
 
 const listKeyExtractors: ListKeyExtractors = {
-	[Match.GT]: (arr: SortArray<any>, reference: string) => arr.getBiggerThan(reference),
-	[Match.LT]: (arr: SortArray<any>, reference: string) => arr.getSmallerThan(reference),
-	[Match.GTE]: (arr: SortArray<any>, reference: string) => arr.getBiggerEqualsTo(reference),
-	[Match.LTE]: (arr: SortArray<any>, reference: string) => arr.getSmallerEqualsTo(reference)
+	[Match.GT]: (arr: SortArray<any>, reference: string) => arr.getBiggerThanTransformed(reference),
+	[Match.LT]: (arr: SortArray<any>, reference: string) => arr.getSmallerThanTransformed(reference),
+	[Match.GTE]: (arr: SortArray<any>, reference: string) => arr.getBiggerEqualsToTransformed(reference),
+	[Match.LTE]: (arr: SortArray<any>, reference: string) => arr.getSmallerEqualsToTransformed(reference)
 };
 
 interface WrappedItem {
@@ -151,7 +151,7 @@ export class Search {
 
 					indexObj.indexed[key].push(wrappedItem);
 					if (indexObj.sorted != null) {
-						indexObj.sorted.push(key);
+						indexObj.sorted.pushTransformed(key);
 					}
 				});
 			});

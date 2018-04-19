@@ -27,7 +27,7 @@ describe('Sorted array', () => {
 		arr = [];
 
 		for (let i = 0; i < 100000; ++i) {
-			sortArr.push(String(i));
+			sortArr.push(i);
 			arr.push(i);
 		}
 	});
@@ -62,7 +62,7 @@ describe('Sorted array', () => {
 		const duration1: number = stop1 - start1;
 
 		const start2: number = Date.now();
-		sortArr.getBiggerThan(String(find));
+		sortArr.getBiggerThan(find);
 		const stop2: number = Date.now();
 
 		const duration2: number = stop2 - start2;
