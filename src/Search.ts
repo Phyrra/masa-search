@@ -203,14 +203,12 @@ export class Search {
 			case Match.EQ:
 				return [indexedData.indexed[value]];
 			case Match.FUZZY:
-				const fuzzyEval: (value: string) => boolean = (key: string) => {
-					const maxAllowedDistance = getMaxAllowedDistance(key, value);
-
-					return levenshtein(key, value) <= maxAllowedDistance;
-				};
-
 				return Object.keys(indexedData.indexed)
-					.filter(key => fuzzyEval(key))
+					.filter(key => {
+						const maxAllowedDistance = getMaxAllowedDistance(key, value);
+
+						return levenshtein(key, value) <= maxAllowedDistance;
+					})
 					.map(key => indexedData.indexed[key]);
 			case Match.GT:
 			case Match.GTE:
