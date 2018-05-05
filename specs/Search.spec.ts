@@ -716,6 +716,39 @@ describe('Search', () => {
 			});
 		});
 
+		describe('prefix search', () => {
+			const index: Index = {
+				key: 'name',
+				type: Type.WORD
+			};
+
+			const names: any[] = [
+				{ name: 'Adam' },
+				{ name: 'Adalbert' },
+				{ name: 'Adonis' },
+				{ name: 'Andrea' },
+				{ name: 'Antonidas' }
+			];
+
+			beforeEach(() => {
+				search.addIndex(index);
+				search.addData(names);
+			});
+
+			it('should find all names starting with a prefix', () => {
+				const query: Query = {
+					condition: {
+						index: index,
+						value: 'ad',
+						match: Match.PREFIX
+					}
+				};
+
+				expect(search.find(query).map(result => result.name).sort())
+					.toEqual(['Adalbert', 'Adam', 'Adonis']);
+			});
+		});
+
 		describe('fuzzy search', () => {
 			const index: Index = {
 				key: 'name',

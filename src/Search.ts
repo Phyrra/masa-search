@@ -9,6 +9,7 @@ import { Query } from './types/Query.interface';
 import { Condition } from './types/Condition.interface';
 import { getMaxAllowedDistance, levenshtein } from './helpers/levenshtein';
 import { SortArray, SortMomentArray, SortNumberArray } from './helpers/SortArray';
+import { Trie } from './helpers/Trie';
 
 const DATE_FORMAT: string = 'YYYY-MM-DD';
 
@@ -81,6 +82,7 @@ interface IndexedData {
 interface IndexObj {
 	indexed: IndexedData;
 	sorted: SortArray<any> | null;
+	prefixed: Trie | null;
 }
 
 interface IndexMap {
@@ -137,9 +139,20 @@ export class Search {
 							}
 						};
 
+						const getTrie: (type: Type) => Trie | null = (type) => {
+							switch (type) {
+								case Type.WORD:
+								case Type.TEXT:
+									return new Trie();
+								default:
+									return null;
+							}
+						}
+
 						this._indexedData[index.key] = {
 							indexed: {},
-							sorted: getSortedArray(index.type)
+							sorted: getSortedArray(index.type),
+							prefixed: getTrie(index.type)
 						};
 					}
 
@@ -150,8 +163,13 @@ export class Search {
 					}
 
 					indexObj.indexed[key].push(wrappedItem);
+					
 					if (indexObj.sorted != null) {
 						indexObj.sorted.pushTransformed(key);
+					}
+
+					if (indexObj.prefixed != null) {
+						indexObj.prefixed.insert(key);
 					}
 				});
 			});
@@ -202,6 +220,14 @@ export class Search {
 		switch (match) {
 			case Match.EQ:
 				return [indexedData.indexed[value]];
+			case Match.PREFIX:
+				const trie: Trie | null = indexedData.prefixed;
+				if (trie == null) {
+					throw new Error(`Type ${query.index.type} has no prefix tree for ${match}`);
+				}
+
+				return trie.findAllStartingWith(value)
+					.map(key => indexedData.indexed[key]);
 			case Match.FUZZY:
 				return Object.keys(indexedData.indexed)
 					.filter(key => {

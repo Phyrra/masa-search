@@ -4,5 +4,6 @@ export enum Match {
 	LT = '<',
 	GTE = '>=',
 	LTE = '<=',
-	FUZZY = 'fuzzy'
+	FUZZY = 'fuzzy',
+	PREFIX = 'prefix'
 }
