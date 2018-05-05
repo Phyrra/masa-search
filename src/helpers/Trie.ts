@@ -41,25 +41,21 @@ export class Trie {
 				return node.children[c];
 			}, this._root);
 
-		return this._collectSubtree(node, prefix) || [];
+		return this._collectSubtree(node, prefix, []);
 	}
 
-	private _collectSubtree(node: Node | undefined, word: string): string[] | null {
+	private _collectSubtree(node: Node | undefined, word: string, result: string[]): string[] {
 		if (!node) {
-			return null;
+			return result;
 		}
-
-		const result: string[] = [];
 
 		if (node.isWord) {
 			result.push(word);
 		}
 
-		return Object.keys(node.children)
-			.map(c => this._collectSubtree(node.children[c], word + c))
-			.filter(res => res != null)
-			.reduce((all: string[], res: string[] | null) => {
-				return all.concat(res as string[]);
-			}, result);
+		Object.keys(node.children)
+			.forEach(c => this._collectSubtree(node.children[c], word + c, result));
+
+		return result;
 	}
 }
