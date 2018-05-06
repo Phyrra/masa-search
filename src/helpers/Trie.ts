@@ -71,6 +71,7 @@ export class Trie {
 		if (node.isWord) {
 			if (Math.abs(pos - word.length) <= maxDist - dist) {
 				result.push(path);
+				return result;
 			}
 		}
 
