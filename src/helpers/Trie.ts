@@ -58,4 +58,42 @@ export class Trie {
 
 		return result;
 	}
+
+	findFuzzy(word: string, dist: number): string[] {
+		return this._collectFuzzySubtree(this._root, word, dist, 0, '', 0, []);
+	}
+
+	private _collectFuzzySubtree(node: Node, word: string, maxDist: number, pos: number, path: string, dist: number, result: string[]): string[] {
+		if (!node) {
+			return result;
+		}
+
+		if (node.isWord) {
+			if (word.length === path.length) {
+				result.push(path);
+			} else if (word.length > path.length) {
+				if (word.length - path.length <= maxDist - dist) {
+					result.push(path);
+				}
+			} else if (word.length < path.length) {
+				if (path.length - word.length <= maxDist) {
+					result.push(path);
+				}
+			}
+		}
+
+		let c: string;
+		if (pos < word.length) {
+			c = word.charAt(pos);
+			this._collectFuzzySubtree(node.children[c], word, maxDist, pos + 1, path + c, dist, result);
+		}
+
+		if (dist < maxDist) {
+			Object.keys(node.children)
+				.filter(cc => cc !== c)
+				.forEach(cc => this._collectFuzzySubtree(node.children[cc], word, maxDist, pos + 1, path + cc, dist + 1, result));
+		}
+
+		return result;
+	}
 }
