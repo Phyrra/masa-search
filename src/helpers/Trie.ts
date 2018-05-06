@@ -69,16 +69,8 @@ export class Trie {
 		}
 
 		if (node.isWord) {
-			if (word.length === path.length) {
+			if (Math.abs(pos - word.length) <= maxDist - dist) {
 				result.push(path);
-			} else if (word.length > path.length) {
-				if (word.length - path.length <= maxDist - dist) {
-					result.push(path);
-				}
-			} else if (word.length < path.length) {
-				if (path.length - word.length <= maxDist) {
-					result.push(path);
-				}
 			}
 		}
 
@@ -91,8 +83,18 @@ export class Trie {
 		if (dist < maxDist) {
 			Object.keys(node.children)
 				.filter(cc => cc !== c)
-				.forEach(cc => this._collectFuzzySubtree(node.children[cc], word, maxDist, pos + 1, path + cc, dist + 1, result));
+				.forEach(cc => {
+					// Replace letter -> halloween / helloween
+					this._collectFuzzySubtree(node.children[cc], word, maxDist, pos + 1, path + cc, dist + 1, result);
+
+					// Additional letter -> halloween / hallloween
+					this._collectFuzzySubtree(node.children[cc], word, maxDist, pos + 2, path + cc, dist + 1, result);
+
+					// Leftout Letter -> halloween / haloween
+					this._collectFuzzySubtree(node.children[cc], word, maxDist, pos, path + cc, dist + 1, result);
+				});
 		}
+
 
 		return result;
 	}
