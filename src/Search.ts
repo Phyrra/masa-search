@@ -7,7 +7,7 @@ import { Match } from './types/Match.enum';
 import { Index } from './types/Index.interface';
 import { Query } from './types/Query.interface';
 import { Condition } from './types/Condition.interface';
-import { getMaxAllowedDistance, levenshtein } from './helpers/levenshtein';
+import { getMaxAllowedDistance } from './helpers/maxFuzzyDist';
 import { SortArray, SortMomentArray, SortNumberArray } from './helpers/SortArray';
 import { Trie } from './helpers/Trie';
 
@@ -221,20 +221,20 @@ export class Search {
 			case Match.EQ:
 				return [indexedData.indexed[value]];
 			case Match.PREFIX:
-				const trie: Trie | null = indexedData.prefixed;
-				if (trie == null) {
+				const prefixTrie: Trie | null = indexedData.prefixed;
+				if (prefixTrie == null) {
 					throw new Error(`Type ${query.index.type} has no prefix tree for ${match}`);
 				}
 
-				return trie.findAllStartingWith(value)
+				return prefixTrie.findAllStartingWith(value)
 					.map(key => indexedData.indexed[key]);
 			case Match.FUZZY:
-				return Object.keys(indexedData.indexed)
-					.filter(key => {
-						const maxAllowedDistance = getMaxAllowedDistance(key, value);
+				const fuzzyTrie: Trie | null = indexedData.prefixed;
+				if (fuzzyTrie == null) {
+					throw new Error(`Type ${query.index.type} has no fuzzy tree for ${match}`);
+				}
 
-						return levenshtein(key, value) <= maxAllowedDistance;
-					})
+				return fuzzyTrie.findFuzzy(value, getMaxAllowedDistance(value))
 					.map(key => indexedData.indexed[key]);
 			case Match.GT:
 			case Match.GTE:
