@@ -129,7 +129,8 @@ export interface Query {
 			LT = '<',
 			GTE = '>=',
 			LTE = '<=',
-			FUZZY = 'fuzzy'
+			FUZZY = 'fuzzy',
+			PREFIX = 'prefix'
 		}
 		```
 
