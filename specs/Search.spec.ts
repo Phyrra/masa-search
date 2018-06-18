@@ -785,6 +785,30 @@ describe('Search', () => {
 			});
 		});
 
+		describe('wildcard search', () => {
+			const index: Index = {
+				key: 'name',
+				type: Type.WORD
+			};
+
+			beforeEach(() => {
+				search.addIndex(index);
+				search.addData(data);
+			});
+
+			it('should find a wildcard match', () => {
+				const query: Query = {
+					condition: {
+						index: index,
+						value: 'Ali.e',
+						match: Match.WILDCARD
+					}
+				};
+
+				expect(search.find(query)).toEqual([data[0]]);
+			});
+		});
+
 		describe('and combination', () => {
 			const index1: Index = {
 				key: 'name',

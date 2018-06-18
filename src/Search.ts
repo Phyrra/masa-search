@@ -70,6 +70,18 @@ const listKeyExtractors: ListKeyExtractors = {
 	[Match.LTE]: (arr: SortArray<any>, reference: string) => arr.getSmallerEqualsToTransformed(reference)
 };
 
+declare type TrieKeyExtractorFunction = (trie: Trie, reference: string) => string[];
+
+declare type TrieKeyExtractors = {
+	[key: string]: TrieKeyExtractorFunction
+};
+
+const trieKeyExtractors: TrieKeyExtractors = {
+	[Match.PREFIX]: (trie: Trie, reference: string) => trie.findAllStartingWith(reference),
+	[Match.FUZZY]: (trie: Trie, reference: string) => trie.findFuzzy(reference, getMaxAllowedDistance(reference)),
+	[Match.WILDCARD]: (trie: Trie, reference: string) => trie.findAllMatching(reference)
+};
+
 interface WrappedItem {
 	id: string;
 	item: any;
@@ -221,20 +233,14 @@ export class Search {
 			case Match.EQ:
 				return [indexedData.indexed[value]];
 			case Match.PREFIX:
-				const prefixTrie: Trie | null = indexedData.prefixed;
-				if (prefixTrie == null) {
-					throw new Error(`Type ${query.index.type} has no prefix tree for ${match}`);
-				}
-
-				return prefixTrie.findAllStartingWith(value)
-					.map(key => indexedData.indexed[key]);
 			case Match.FUZZY:
-				const fuzzyTrie: Trie | null = indexedData.prefixed;
-				if (fuzzyTrie == null) {
-					throw new Error(`Type ${query.index.type} has no fuzzy tree for ${match}`);
+			case Match.WILDCARD:
+				const trie: Trie | null = indexedData.prefixed;
+				if (trie == null) {
+					throw new Error(`Type ${query.index.type} has no indexed tree for ${match}`);
 				}
 
-				return fuzzyTrie.findFuzzy(value, getMaxAllowedDistance(value))
+				return trieKeyExtractors[match](trie, value)
 					.map(key => indexedData.indexed[key]);
 			case Match.GT:
 			case Match.GTE:
