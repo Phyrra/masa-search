@@ -98,4 +98,69 @@ export class Trie {
 
 		return result;
 	}
+
+	findAllMatching(word: string): string[] {
+        return this._collectWildcardSubtree(this._root, word, 0, '', [], {});
+    }
+    
+    private _collectWildcardSubtree(node: Node, word: string, pos: number, path: string, result: string[], cache: { [key: string]: boolean}): string[] {
+        if (!node) {
+            return result;
+        }
+        
+        const key = path + ' ' + pos;
+        if (cache[key]) {
+            return result;
+        }
+        cache[key] = true;
+        
+        if (pos >= word.length) {
+            if (node.isWord) {
+                result.push(path);
+            }
+            
+            return result;
+        }
+        
+        const c = word.charAt(pos);
+        
+        let nextC = null;
+        if (pos < word.length - 1) {
+            nextC = word.charAt(pos + 1);
+        }
+        
+        let childrenToCheck;
+        if (c === '.') {
+            // any character
+            childrenToCheck = Object.keys(node.children);
+        } else {
+            // current character
+            childrenToCheck = [c];
+        }
+        
+        if (nextC === '?' || nextC === '*') {
+            // skip character
+            this._collectWildcardSubtree(node, word, pos + 2, path, result, cache);
+        }
+        
+        if (nextC === '?' || nextC === '+' || nextC === '*') {
+            // use character once (the last time)
+            childrenToCheck
+                .forEach(cc => this._collectWildcardSubtree(node.children[cc], word, pos + 2, path + cc, result, cache));
+        }
+        
+        if (nextC === '+' || nextC === '*') {
+            // use character n times
+            childrenToCheck
+                .forEach(cc => this._collectWildcardSubtree(node.children[cc], word, pos, path + cc, result, cache));
+        }
+        
+        if (nextC !== '?' && nextC !== '*' && nextC !== '+') {
+            // normal, check character
+            childrenToCheck
+                .forEach(cc => this._collectWildcardSubtree(node.children[cc], word, pos + 1, path + cc, result, cache));
+        }
+        
+        return result;
+    }
 }

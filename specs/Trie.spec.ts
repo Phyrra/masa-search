@@ -125,4 +125,49 @@ describe('Trie', () => {
 			});
 		});
 	});
+
+	describe('findAllMatching()', () => {
+		beforeEach(() => {
+			trie.insert('hello');
+			trie.insert('hell');
+			trie.insert('halloween');
+			trie.insert('helsinki');
+			trie.insert('halbert');
+		});
+
+		it('should find a wildcard character', () => {
+			expect(trie.findAllMatching('h.lloween'))
+				.toEqual(['halloween']);
+		});
+
+		it('should not match wildcard to missing character', () => {
+			expect(trie.findAllMatching('ha.lloween'))
+				.toEqual([]);
+		});
+
+		it('should match a non-required wildcard to a missing character', () => {
+			expect(trie.findAllMatching('ha.?lloween'))
+				.toEqual(['halloween']);
+		});
+
+		it('should match a non-required wildcard to an existing character', () => {
+			expect(trie.findAllMatching('h.?lloween'))
+				.toEqual(['halloween']);
+		});
+
+		it('should match a selection of non-required characters to an existing character', () => {
+			expect(trie.findAllMatching('ha?e?lloween'))
+				.toEqual(['halloween']);
+		});
+
+		it('should match multiple non-required wildcards to existing and non-existing characters', () => {
+			expect(trie.findAllMatching('hell.*'))
+				.toEqual(['hell', 'hello']);
+		});
+
+		it('should match multiple required wildcards to existing characters', () => {
+			expect(trie.findAllMatching('hell.+'))
+				.toEqual(['hello']);
+		});
+	});
 });
