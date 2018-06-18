@@ -130,13 +130,31 @@ export interface Query {
 			GTE = '>=',
 			LTE = '<=',
 			FUZZY = 'fuzzy',
-			PREFIX = 'prefix'
+			PREFIX = 'prefix',
+			WILDCARD = 'wildcard'
 		}
 		```
 
 	*	`value` being the value that should be compared against
 
 The query should only ever have one of the keys filled.
+
+### FUZZY
+
+The `FUZZY` search matches words with an auto-determined maximum distance.
+
+* up to 4 letters: 1
+* up to 8 letters: 2
+* longer words: 4
+
+### WILDCARD
+
+The `WILDCARD` search mathes exact words supporting wildcards.
+
+* `.` a single character wildcard
+* `?` the previous character is not required, but may occur
+* `+` the previous character may occur repeatedly, but at least once
+* `*` the previous character may occur repeatedly or not at all
 
 Examples
 ========
