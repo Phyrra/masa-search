@@ -13,7 +13,7 @@ yarn add masa-search
 Usage
 =====
 
-### Node
+## Node
 
 Once installed, you can pull components from the module and use them in your code.
 ```
@@ -46,7 +46,7 @@ console.log(
 );
 ```
 
-### TypeScript
+## TypeScript
 
 The module was written in TypeScript and comes with its own types.
 ```
@@ -60,7 +60,7 @@ const search = new Search();
 API
 ===
 
-### addIndex
+## addIndex
 
 Add an index definition. All indexes should be added before adding data.
 Already processed data will not be re-indexed, unless manually triggered.
@@ -85,18 +85,20 @@ interface Index {
 	}
 	```
 
-### addData
+## addData
 
 Add new data for future searches. The data can be anything and nested as is required.
 
-### reIndex
+## reIndex
 
 Clears the current indexed data store and re-indexes all data.
 
-### find
+## find
 
-Find a set of results, based on the provided search query. The query can be any combination of and/or.
-It should follow this structure
+Find a set of results, based on the provided search query.
+
+### Query
+
 ```
 export interface Query {
 	and?: Query[],
@@ -110,36 +112,38 @@ export interface Query {
 *	`or` will combine all queries with `||`
 
 *	`condition` is the final condition (stops recursion)
-	It should match the following format
+
+The query should only ever have one of the keys filled and can be nested as required.
+
+### Condition
+
+```
+interface Condition {
+	index: Index,
+	match ?: Match,
+	value: any
+}
+```
+
+*	`index` being the index, see definition above
+
+*	`match` being the match type where `Match` is an enum of
 	```
-	interface Condition {
-		index: Index,
-		match ?: Match,
-		value: any
+	enum Match {
+		EQ = '=',
+		GT = '>',
+		LT = '<',
+		GTE = '>=',
+		LTE = '<=',
+		FUZZY = 'fuzzy',
+		PREFIX = 'prefix',
+		WILDCARD = 'wildcard'
 	}
 	```
 
-	*	`index` being the index, see definition above
+*	`value` being the value that should be compared against
 
-	*	`match` being the match type where `Match` is an enum of
-		```
-		enum Match {
-			EQ = '=',
-			GT = '>',
-			LT = '<',
-			GTE = '>=',
-			LTE = '<=',
-			FUZZY = 'fuzzy',
-			PREFIX = 'prefix',
-			WILDCARD = 'wildcard'
-		}
-		```
-
-	*	`value` being the value that should be compared against
-
-The query should only ever have one of the keys filled.
-
-### FUZZY
+#### FUZZY
 
 The `FUZZY` search matches words with an auto-determined maximum distance.
 
@@ -147,7 +151,7 @@ The `FUZZY` search matches words with an auto-determined maximum distance.
 * up to 8 letters: 2
 * longer words: 4
 
-### WILDCARD
+#### WILDCARD
 
 The `WILDCARD` search mathes exact words supporting wildcards.
 
