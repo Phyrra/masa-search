@@ -38,8 +38,8 @@ describe('text index', () => {
 		const numberOfWords: number = countWords(ainulindale);
 		const numberOfIndexes: number = getNumberOfKeys(search);
 
-		console.log('number of words', numberOfWords);
-		console.log('number of indexes', numberOfIndexes);
+		//console.log('number of words', numberOfWords);
+		//console.log('number of indexes', numberOfIndexes);
 
 		expect(numberOfIndexes / numberOfWords).toBeLessThan(0.25);
 	});
@@ -57,8 +57,8 @@ describe('text index', () => {
 
 		const numberOfIndexesAfter: number = getNumberOfKeys(search);
 
-		console.log('indexes after one', numberOfIndexesBefore);
-		console.log('indexes after two', numberOfIndexesAfter);
+		//console.log('indexes after one', numberOfIndexesBefore);
+		//console.log('indexes after two', numberOfIndexesAfter);
 
 		expect(numberOfIndexesAfter / numberOfIndexesBefore).toBeLessThan(1.5);
 	});
@@ -72,8 +72,8 @@ describe('text index', () => {
 		const numberOfWords: number = countWords(ainulindale + ' ' + ofTheValar);
 		const numberOfIndexes: number = getNumberOfKeys(search);
 
-		console.log('number of words', numberOfWords);
-		console.log('number of indexes', numberOfIndexes);
+		//console.log('number of words', numberOfWords);
+		//console.log('number of indexes', numberOfIndexes);
 
 		expect(numberOfIndexes / numberOfWords).toBeLessThan(0.2);
 	});
@@ -92,8 +92,8 @@ describe('text index', () => {
 
 		const numberOfIndexesAfter: number = getNumberOfKeys(search);
 
-		console.log('indexes after one', numberOfIndexesBefore);
-		console.log('indexes after two', numberOfIndexesAfter);
+		//console.log('indexes after one', numberOfIndexesBefore);
+		//console.log('indexes after two', numberOfIndexesAfter);
 
 		expect(numberOfIndexesAfter / numberOfIndexesBefore).toBeLessThan(1.5); // disappointing :(
 		// Maybe Tolkien is too complex for this kind of test?

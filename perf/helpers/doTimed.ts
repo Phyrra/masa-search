@@ -1,10 +1,13 @@
-export function doTimed(fnc: Function, name: string): number {
+export function doTimed(fnc: Function, name: string, log: boolean = false): number {
 	const start: number = Date.now();
 	fnc();
 	const stop: number = Date.now();
 
 	const duration: number = stop - start;
-	console.log(name, duration);
+
+	if (log) {
+		console.log(name, duration);
+	}
 
 	return duration;
 }

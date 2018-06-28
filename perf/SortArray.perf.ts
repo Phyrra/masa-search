@@ -23,7 +23,7 @@ describe('Sorted array', () => {
 		}
 	};
 
-	beforeEach(() => {
+	beforeAll(() => {
 		sortArr = new SortNumberArray();
 		arr = [];
 

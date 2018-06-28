@@ -14,7 +14,7 @@ describe('number indexes', () => {
 	let search1: Search;
 	let search2: Search;
 
-	beforeEach(() => {
+	beforeAll(() => {
 		search1 = new Search();
 		search1.addIndex(index);
 
