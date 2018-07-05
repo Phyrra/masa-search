@@ -1,5 +1,5 @@
-import { Search } from "../src/Search";
-import { Type } from "../src/types/Type.enum";
+import { Search } from '../src/Search';
+import { Type } from '../src/types/Type.enum';
 
 var ainulindale: string = require('./data/Ainulindale.txt');
 var ofTheValar: string = require('./data/OfTheValar.txt');

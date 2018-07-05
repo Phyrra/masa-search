@@ -159,6 +159,9 @@ The `WILDCARD` search mathes exact words supporting wildcards.
 * `?` the previous character is not required, but may occur
 * `+` the previous character may occur repeatedly, but at least once
 * `*` the previous character may occur repeatedly or not at all
+* `[]` defines a selection of characters, example: `[ab]` matches either a or b
+	* `[^]` defines a negative selection of characters, example: `[^ab]` matches everything except a and b
+	* `[-]` defines a range, example: `[a-d]` matches every character between a and d
 
 Examples
 ========
