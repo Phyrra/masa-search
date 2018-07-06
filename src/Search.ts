@@ -1,5 +1,3 @@
-import * as moment from 'moment';
-import { Moment } from 'moment';
 import * as  _ from 'lodash';
 import { guid } from './helpers/guid';
 import { Type } from './types/Type.enum';
@@ -10,52 +8,8 @@ import { Condition } from './types/Condition.interface';
 import { getMaxAllowedDistance } from './helpers/maxFuzzyDist';
 import { SortArray, SortMomentArray, SortNumberArray } from './helpers/SortArray';
 import { Trie } from './helpers/Trie';
-
-const DATE_FORMAT: string = 'YYYY-MM-DD';
-
-declare type TransformerFunction = (value: any) => string[];
-
-declare type Transformers = {
-	[key: string]: TransformerFunction;
-}
-
-const transformers: Transformers = {
-	[Type.WORD]: (value: string) => {
-		if (!value) {
-			return [];
-		}
-
-		return [value.toLowerCase()];
-	},
-	[Type.TEXT]: (value: string) => {
-		if (!value) {
-			return [];
-		}
-
-		return value.trim().toLowerCase()
-			.replace(/[^a-z\s]/g, ' ')
-			.split(/\s+/)
-			.filter(word => word.length > 0);
-	},
-	[Type.NUMBER]: (value: number | string) => {
-		if (value == null) {
-			return [];
-		}
-
-		return [String(value)];
-	},
-	[Type.DATE]: (value: Date | string) => {
-		if (value == null) {
-			return [];
-		}
-
-		if (value instanceof Date) {
-			return [moment(value).format(DATE_FORMAT)];
-		} else {
-			return [moment(value, DATE_FORMAT).format(DATE_FORMAT)]
-		}
-	}
-}
+import { SearchKeyTransformer } from './helpers/SearchKeyTransformer';
+import { DATE_FORMAT } from './constants/DATE_FORMAT';
 
 declare type ListKeyExtractorFunction = (arr: SortArray<any>, reference: any) => any[];
 
@@ -132,11 +86,11 @@ export class Search {
 			};
 
 			this._indexes.forEach(index => {
-				if (!transformers.hasOwnProperty(index.type)) {
+				if (!SearchKeyTransformer.canTransform(index.type)) {
 					throw new Error(`Unknown type ${index.type}`);
 				}
 
-				const keys: string[] = transformers[index.type](_.get(item, index.key, null));
+				const keys: string[] = SearchKeyTransformer.transform(index.type, _.get(item, index.key, null));
 
 				keys.forEach(key => {
 					if (!this._indexedData.hasOwnProperty(index.key)) {
@@ -175,7 +129,7 @@ export class Search {
 					}
 
 					indexObj.indexed[key].push(wrappedItem);
-					
+
 					if (indexObj.sorted != null) {
 						indexObj.sorted.pushTransformed(key);
 					}
@@ -259,7 +213,7 @@ export class Search {
 	}
 
 	private _findSingleQueryResult(query: Condition): ResultMap {
-		if (!transformers.hasOwnProperty(query.index.type)) {
+		if (!SearchKeyTransformer.canTransform(query.index.type)) {
 			throw new Error(`Unknown type ${query.index.type}`);
 		}
 
@@ -268,7 +222,7 @@ export class Search {
 			return {};
 		}
 
-		const values: string[] = transformers[query.index.type](query.value);
+		const values: string[] = SearchKeyTransformer.transform(query.index.type, query.value);
 
 		const valueResults: any[] = [];
 
