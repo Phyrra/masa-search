@@ -2,6 +2,9 @@ coverage/
 specs/
 test/
 perf/
-karma.conf.js
+karma.perf.js
+karma.spec.js
 tsconfig.json
 yarn-error.log
+index.html
+browser.js
