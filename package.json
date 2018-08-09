@@ -11,7 +11,7 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "build": "tsc && browserify browser.js > dist/Search.browser.js",
+    "build": "tsc && browserify browser.js > dist/masa-search.browser.js",
     "test": "karma start karma.spec.js",
 	"perf": "karma start karma.perf.js"
   },
