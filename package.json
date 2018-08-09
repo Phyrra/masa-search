@@ -3,17 +3,17 @@
   "version": "0.3.1",
   "description": "Search indexer for TypeScript and JavaScript",
   "keywords": [
-	  "search",
-	  "indexed"
+    "search",
+    "indexed"
   ],
   "repository": "https://github.com/Phyrra/masa-search.git",
   "author": "Sandro.Maggi",
   "license": "MIT",
   "private": false,
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && browserify browser.js > dist/Search.browser.js",
     "test": "karma start karma.spec.js",
-    "perf": "karma start karma.perf.js"
+	"perf": "karma start karma.perf.js"
   },
   "main": "index.js",
   "types": "index.d.ts",
@@ -30,6 +30,7 @@
     "typescript": "^2.8.1"
   },
   "dependencies": {
+    "browserify": "^16.2.2",
     "lodash": "^4.17.5",
     "moment": "^2.22.0"
   }

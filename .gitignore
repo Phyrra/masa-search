@@ -3,3 +3,4 @@ dist/
 test/
 yarn-error.log
 coverage/
+index.html
