@@ -57,6 +57,23 @@ const search = new Search();
 ...
 ```
 
+## Browser
+
+The module is converted to a browser-library using [browserify](http://browserify.org/).
+
+The dependencies are exported to the `window` global.
+
+```
+<html>
+	<script src="node_modules/masa-search/dist/masa-search.browser.js">
+	<script>
+		const search = new Search();
+		
+		// ...
+	</script>
+</html>
+```
+
 API
 ===
 
